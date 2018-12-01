@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/eq_container"
+    android:layout_gravity="center_horizontal"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="32dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/max_level_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_alignParentTop="true"
+            />
+        <TextView
+            android:id="@+id/center_level_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_centerVertical="true"
+            />
+        <TextView
+            android:id="@+id/min_level_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_alignParentBottom="true"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band0_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band0_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band1_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band1_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band2_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band2_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band3_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band3_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band4_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band4_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band5_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band5_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band6_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band6_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <com.android.approjects.musicfx.SeekBarRotator
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/eq_slider_height">
+            <SeekBar
+                android:id="@+id/eq_band7_seekbar"
+                android:layout_margin="@dimen/eq_slider_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.android.approjects.musicfx.SeekBarRotator>
+        <TextView
+            android:id="@+id/eq_band7_textview"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+
+
+</LinearLayout>
