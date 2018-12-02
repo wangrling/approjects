@@ -10,6 +10,8 @@ import android.widget.Toolbar;
 public class AppProjectsActivity extends Activity
         implements FragmentManager.OnBackStackChangedListener {
 
+    final static String TAG = "AppProjects";
+
     private static final String TITLE_FRAGMENT_TAG =
             "com.android.approjects.TITLE_FRAGMENT_TAG";
 
