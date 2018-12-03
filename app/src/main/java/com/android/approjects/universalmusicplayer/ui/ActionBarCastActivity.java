@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.android.approjects.R;
+import com.android.approjects.universalmusicplayer.utils.LogHelper;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -34,7 +35,7 @@ import androidx.fragment.app.FragmentManager;
 
 public class ActionBarCastActivity extends AppCompatActivity {
 
-    public static final String TAG = "UniversalMusicPlayer";
+
 
     private static final int DELAY_MILLIS = 1000;
 
@@ -111,8 +112,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.d(TAG, "ActionBarCastActivity onCreate");
+        LogHelper.d("ActionBarCastActivity onCreate");
     }
 
     @Override

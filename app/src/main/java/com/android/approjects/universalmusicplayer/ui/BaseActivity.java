@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.android.approjects.R;
 import com.android.approjects.universalmusicplayer.MusicService;
+import com.android.approjects.universalmusicplayer.utils.LogHelper;
 import com.android.approjects.universalmusicplayer.utils.NetworkHelper;
 
 import androidx.annotation.Nullable;
@@ -29,7 +30,7 @@ public class BaseActivity extends ActionBarCastActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "BaseActivity onCreate");
+        Log.d(MusicPlayerActivity.TAG, "BaseActivity onCreate");
 
         // Connect a media browser just to get the media session token. There are
         // other ways this can be done, for example by sharing the session token directly.
@@ -41,7 +42,7 @@ public class BaseActivity extends ActionBarCastActivity
     protected void onStart() {
         super.onStart();
 
-        Log.d(TAG, "BaseActivity onStart");
+        LogHelper.d("BaseActivity onStart");
 
         mControlsFragment = (PlaybackControlsFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_playback_controls);
@@ -59,7 +60,7 @@ public class BaseActivity extends ActionBarCastActivity
     protected void onStop() {
         super.onStop();
 
-        Log.d(TAG, "BaseActivity onStop");
+        LogHelper.d("BaseActivity onStop");
 
         MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(this);
 
@@ -81,7 +82,7 @@ public class BaseActivity extends ActionBarCastActivity
     }
 
     protected void showPlaybackControls() {
-        Log.d(TAG, "showPlaybackControls");
+        LogHelper.d("showPlaybackControls");
         if (NetworkHelper.isOnline(this)) {
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(
@@ -93,7 +94,7 @@ public class BaseActivity extends ActionBarCastActivity
     }
 
     protected void hidePlaybackControls() {
-        Log.d(TAG, "hidePlaybackControls");
+        LogHelper.d("hidePlaybackControls");
         getSupportFragmentManager().beginTransaction()
                 .hide(mControlsFragment).commit();
     }

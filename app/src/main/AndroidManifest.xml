@@ -11,8 +11,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".musicfx.MusicFXActivity" />
 
+        <activity android:name=".universalmusicplayer.ui.FullScreenPlayerActivity" />
+
+        <activity android:name=".musicfx.MusicFXActivity" />
 
         <activity android:name=".AppProjectsActivity">
             <intent-filter>
