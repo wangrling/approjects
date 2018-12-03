@@ -266,4 +266,6 @@ public class PlaybackControlsFragment extends Fragment {
             controller.getTransportControls().pause();
         }
     }
+
+
 }

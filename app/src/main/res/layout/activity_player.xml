@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/toolbar" android:id="@+id/toolbar_container" />
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_below="@id/toolbar_container"
+            android:layout_above="@id/controls_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/controls_container"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <fragment
+                android:name="com.android.approjects.universalmusicplayer.ui.PlaybackControlsFragment"
+                android:id="@+id/fragment_playback_controls"
+                android:layout_alignParentBottom="true"
+                tools:layout="@layout/fragment_playback_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </androidx.cardview.widget.CardView>
+
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            app:menu="@menu/music_drawer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,7 +1,5 @@
 <resources>
 
-
-
     <!--MusicFX -->
     <!-- ControlPanelMusic strings -->
     <string name="no_effects">Effects not available.</string>
@@ -18,4 +16,13 @@
 
 
     <string name="app_name">approjects</string>
+
+    <!-- Universal Music Player -->
+    <string name="loading">Loading</string>
+    <string name="drawer_allmusic_title">All Music</string>
+    <string name="drawer_playlists_title">Playlists</string>
+    <string name="open_content_drawer">Open the main menu</string>
+    <string name="close_content_drawer">Close the main menu</string>
+
+
 </resources>

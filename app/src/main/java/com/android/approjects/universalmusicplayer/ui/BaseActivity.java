@@ -30,7 +30,7 @@ public class BaseActivity extends ActionBarCastActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(MusicPlayerActivity.TAG, "BaseActivity onCreate");
+        LogHelper.d("BaseActivity onCreate");
 
         // Connect a media browser just to get the media session token. There are
         // other ways this can be done, for example by sharing the session token directly.
@@ -48,7 +48,8 @@ public class BaseActivity extends ActionBarCastActivity
                 .findFragmentById(R.id.fragment_playback_controls);
 
         if (mControlsFragment == null) {
-            throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");
+            throw new IllegalStateException("Missing fragment with id 'fragment_playback_controls'." +
+                    " Cannot continue.");
         }
 
         hidePlaybackControls();

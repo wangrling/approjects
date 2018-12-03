@@ -2,6 +2,7 @@ package com.android.approjects.universalmusicplayer.ui;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.drm.DrmStore;
 import android.media.session.MediaController;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -75,7 +76,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
 
                 // Additional options for how the Activity should be started.
                 Bundle extras = ActivityOptions.makeCustomAnimation(
-                        this, R.anim.fade_in, R.anim.fade_out).toBundle();
+                        ActionBarCastActivity.this, R.anim.fade_in, R.anim.fade_out).toBundle();
 
                 Class activityClass = null;
                 switch (mItemToOpenWhenDrawerCloses) {
