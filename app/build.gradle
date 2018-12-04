@@ -8,7 +8,14 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild{
+            cmake {
+                cppFlags "-std=c++11"
+            }
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -21,12 +28,25 @@ android {
         exclude 'META-INF/proguard/androidx-annotations.pro'
         exclude 'META-INF/DEPENDENCIES'
     }
+
+
+    // Specifies the location of the top level CMakeLists.txt
+    // The path is relative to the hosting directory
+    // of this build.gradle file
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+    androidTestImplementation 'androidx.test:core:1.0.0'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.annotation:annotation:1.0.0'

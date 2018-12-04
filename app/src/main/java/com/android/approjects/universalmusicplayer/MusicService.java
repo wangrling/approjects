@@ -20,7 +20,11 @@ import com.android.approjects.universalmusicplayer.playback.PlaybackManager;
 import com.android.approjects.universalmusicplayer.utils.LogHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.android.approjects.universalmusicplayer.utils.MediaIDHelper.MEDIA_ID_EMPTY_ROOT;
+import static com.android.approjects.universalmusicplayer.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 /**
  * This class provides a MediaBrowser through a service. It exposes the media library to a browsing
@@ -88,16 +92,65 @@ public class MusicService extends MediaBrowserServiceCompat implements
     // 没有实现
     private PackageValidator mPackageValidator;
 
+    // 什么时候会创建MusicService?
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        LogHelper.d("MusicService onCreate");
+
+        mMusicProvider = new MusicProvider();
+
+        // To make the app more responsive, fetch and cache catalog information now.
+        // This can help improve the response time in the method
+        // {@link #onLoadChildren(String, Result<List<MediaItem>>) onLoadChildren()}.
+        mMusicProvider.retrieveMediaAsync(null /* Callback */);
+
+
+    }
 
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
-        return null;
+        LogHelper.d("onGetRoot: clientPackageName = " + clientPackageName +
+                "; clientUid = " + clientUid + "; rootHints = " + rootHints);
+
+        // (Optional) Control the level of access for the specified package name.
+        // You'll need to write your own logic to do this.
+        // 假的PackageValidator实现
+        if (PackageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
+            // Returns a root ID that clients can use with onLoadChildren() to retrieve
+            // the content hierarchy.
+            return new BrowserRoot(MEDIA_ID_ROOT, null);
+        } else {
+            // Clients can connect, but this BrowserRoot is an empty hierachy
+            // so onLoadChildren returns nothing. This disables the ability to browse for content.
+            return new BrowserRoot(MEDIA_ID_EMPTY_ROOT, null);
+        }
+
     }
 
+    // 加载音乐播放列表
+    // 通过subscribe函数获取音乐列表。
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        LogHelper.d("OnLoadChildren: parentMediaId = " + parentId);
+        if (MEDIA_ID_EMPTY_ROOT.equals(parentId)) {
+            result.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
+        } else if (mMusicProvider.isInitialized()) {
+            // If music library is ready, return immediately.
+            result.sendResult(mMusicProvider.getChildren(parentId, getResources()));
+        } else {
+            // Otherwise, only return results when the music library is retrieved.
+            result.detach();
+            mMusicProvider.retrieveMediaAsync(new MusicProvider.Callback() {
 
+                @Override
+                public void onMusicCatalogReady(boolean success) {
+
+                }
+            });
+        }
     }
 
     @Override

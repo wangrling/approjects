@@ -24,6 +24,9 @@
     <string name="drawer_playlists_title">Playlists</string>
     <string name="open_content_drawer">Open the main menu</string>
     <string name="close_content_drawer">Close the main menu</string>
+    <string name="browse_genres">Genres</string>
+    <string name="browse_genre_subtitle">Songs by genre</string>
+    <string name="browse_music_musics_by_genre_subtitle">%1$s songs</string>
 
 
 </resources>
