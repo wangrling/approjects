@@ -19,6 +19,7 @@
 
     <!-- Universal Music Player -->
     <string name="loading">Loading</string>
+    <string name="ump">UniversalMusicPlayer</string>
     <string name="drawer_allmusic_title">All Music</string>
     <string name="drawer_playlists_title">Playlists</string>
     <string name="open_content_drawer">Open the main menu</string>

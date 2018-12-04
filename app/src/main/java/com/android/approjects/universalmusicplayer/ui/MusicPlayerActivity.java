@@ -16,7 +16,8 @@ import androidx.annotation.Nullable;
  * connected while this activity is running.
  */
 
-public class MusicPlayerActivity extends BaseActivity {
+public class MusicPlayerActivity extends BaseActivity implements
+        MediaBrowserFragment.MediaFragmentListener {
 
     private static final String SAVED_MEDIA_ID = "com.android.approjects.ump.MEDIA_ID";
     private static final String FRAGMENT_TAG = "ump_list_container";
@@ -38,5 +39,22 @@ public class MusicPlayerActivity extends BaseActivity {
         LogHelper.d("MusicPlayerActivity onCreate");
 
         setContentView(R.layout.activity_player);
+
+        // Only check if a full screen player is needed on the first time.
+        if (savedInstanceState == null) {
+            startFullScreenActivityIfNeeded(getIntent());
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        String mediaId = getMediaId();
+        if (mediaId != null) {
+            outState.putString(SAVED_MEDIA_ID, mediaId);
+        }
+
+        super.onSaveInstanceState(outState);
+    }
+
+
 }
