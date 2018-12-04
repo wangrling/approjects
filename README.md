@@ -1,6 +1,7 @@
 <html>
 <body>
     <h3>UniversalMusicPlayer</h3>
+    <p>MediaBrowser MediaController</p>
     <p>从BaseActivity创建MediaBrowserCompat时传递MusicService，创建本地服务，该服务继承
     MediaBrowserServiceCompat，在实现onLoadChildren函数的过程中加载MediaProvider提供的
     数据，MediaBrowserFragment用于显示，PlaybackControlsFragment用于播放控制。</p>
