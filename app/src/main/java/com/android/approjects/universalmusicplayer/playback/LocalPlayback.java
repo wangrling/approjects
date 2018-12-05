@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
@@ -172,7 +173,7 @@ public class LocalPlayback implements Playback {
     }
 
     @Override
-    public void play(MediaSession.QueueItem item) {
+    public void play(MediaSessionCompat.QueueItem item) {
         mPlayOnFocusGain = true;
         tryToGetAudioFocus();
         registerAudioNoisyReceiver();
@@ -204,7 +205,7 @@ public class LocalPlayback implements Playback {
             }
 
             // Android "O" makes much greater use of AudioAttributes, especially
-            // with regards to AudioFocus. All of UAMP's tracks are music, but
+            // with regards to AudioFocus. All of UMP's tracks are music, but
             // if your content includes spoken word such as audiobooks or podcasts
             // then the content type should be set to CONTENT_TYPE_SPEECH for those
             // tracks.
@@ -263,6 +264,11 @@ public class LocalPlayback implements Playback {
     @Override
     public void setCurrentMediaId(String mediaId) {
         this.mCurrentMediaId = mediaId;
+    }
+
+    @Override
+    public String getCurrentMediaId() {
+        return mCurrentMediaId;
     }
 
     @Override

@@ -111,7 +111,7 @@ public class QueueManager {
     }
 
     public void setRandomQueue() {
-        setCurrentQueue(mResources.getString(R.string.random_queue_title),
+        setCurrentQueue("Random music",
                 QueueHelper.getRandomQueue(mMusicProvider));
         updateMetadata();
     }

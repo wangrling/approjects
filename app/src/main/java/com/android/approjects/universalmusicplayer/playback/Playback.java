@@ -66,6 +66,7 @@ public interface Playback {
 
     void setCurrentMediaId(String mediaId);
 
+    String getCurrentMediaId();
 
     interface Callback {
         /**

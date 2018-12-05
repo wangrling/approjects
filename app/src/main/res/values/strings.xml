@@ -28,6 +28,7 @@
     <string name="browse_genre_subtitle">Songs by genre</string>
     <string name="browse_music_musics_by_genre_subtitle">%1$s songs</string>
     <string name="error_loading_media">Error Loading Media</string>
+    <string name="browse_musics_by_genre_subtitle">%1$s songs</string>
 
 
 </resources>
