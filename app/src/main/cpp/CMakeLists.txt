@@ -2,6 +2,12 @@
 # library.
 cmake_minimum_required(VERSION 3.4.1)
 
+add_library( libFLAC
+            SHARED
+            src/main/cpp/libFLAC/flac_jni.cc
+            src/main/cpp/libFLAC/flac_parser.cc
+            )
+
 # Creates the project's shared lib: libnative-lib.so.
 # The lib is loaded by this project's Java code in MainActivity.java:
 #     System.loadLibrary("native-lib");
