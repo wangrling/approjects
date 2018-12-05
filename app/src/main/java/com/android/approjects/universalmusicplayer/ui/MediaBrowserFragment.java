@@ -103,8 +103,8 @@ public class MediaBrowserFragment extends Fragment {
     private final MediaBrowserCompat.SubscriptionCallback mSubscriptionCallback =
             new MediaBrowserCompat.SubscriptionCallback() {
                 @Override
-                public void onChildrenLoaded(@android.support.annotation.NonNull String parentId,
-                                             @android.support.annotation.NonNull List<MediaBrowserCompat.MediaItem> children) {
+                public void onChildrenLoaded(@NonNull String parentId,
+                                             @NonNull List<MediaBrowserCompat.MediaItem> children) {
 
                     try {
                         LogHelper.d("MediaBrowserFragment onChildrenLoaded, parentId = " + parentId +
@@ -121,7 +121,7 @@ public class MediaBrowserFragment extends Fragment {
                 }
 
                 @Override
-                public void onError(@android.support.annotation.NonNull String parentId) {
+                public void onError(@NonNull String parentId) {
                     LogHelper.e("browse fragment subscription onError, id = " + parentId);
                     Toast.makeText(getActivity(), R.string.error_loading_media, Toast.LENGTH_SHORT).show();;
                     checkForUserVisibleErrors(true);

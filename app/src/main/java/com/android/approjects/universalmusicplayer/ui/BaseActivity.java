@@ -40,6 +40,7 @@ public class BaseActivity extends ActionBarCastActivity
         // Connect a media browser just to get the media session token. There are
         // other ways this can be done, for example by sharing the session token directly.
         // 是否启动MusicService?
+        // 启动MusicService!
         mMediaBrowser = new MediaBrowserCompat(this,
                 new ComponentName(this, MusicService.class), mConnectionCallback, null);
     }
@@ -60,6 +61,7 @@ public class BaseActivity extends ActionBarCastActivity
 
         hidePlaybackControls();
 
+        LogHelper.d("BaseActivity connects to the media browse service.");
         mMediaBrowser.connect();
     }
 
@@ -98,7 +100,7 @@ public class BaseActivity extends ActionBarCastActivity
     }
 
     protected void hidePlaybackControls() {
-        LogHelper.d("hidePlaybackControls");
+        LogHelper.d("BaseActivity hidePlaybackControls");
         getSupportFragmentManager().beginTransaction()
                 .hide(mControlsFragment).commit();
     }

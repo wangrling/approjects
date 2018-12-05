@@ -1,5 +1,6 @@
 package com.android.approjects.universalmusicplayer.playback;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +9,6 @@ import android.media.AudioManager;
 import android.media.session.MediaSession;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -40,6 +40,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+
+import androidx.annotation.Nullable;
 
 import static android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC;
 import static com.google.android.exoplayer2.C.USAGE_MEDIA;
@@ -190,6 +192,8 @@ public class LocalPlayback implements Playback {
                     mMusicProvider.getMusic(MediaIDHelper.extractMusicIDFromMediaID(
                             item.getDescription().getMediaId()));
 
+            // 忽略错误提示
+            @SuppressLint("WrongConstant")
             String source = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
             if (source != null) {
                 source = source.replaceAll(" ", "%20"); // Escape spaces for URLs

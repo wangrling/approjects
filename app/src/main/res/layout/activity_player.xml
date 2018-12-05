@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar" android:id="@+id/toolbar_container" />
+        <include layout="@layout/include_toolbar" android:id="@+id/toolbar_container" />
 
         <FrameLayout
             android:id="@+id/container"
@@ -34,12 +34,12 @@
                 android:layout_height="wrap_content" />
         </androidx.cardview.widget.CardView>
 
-
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/nav_view"
-            app:menu="@menu/music_drawer"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
     </RelativeLayout>
 
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        app:menu="@menu/music_drawer"
+        android:layout_gravity="start"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
 </androidx.drawerlayout.widget.DrawerLayout>

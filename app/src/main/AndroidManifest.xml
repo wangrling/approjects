@@ -3,6 +3,7 @@
     
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +13,9 @@
         android:theme="@style/AppTheme">
 
         <!-- Main activity for music browsing on phone -->
-        <activity android:name=".universalmusicplayer.ui.MusicPlayerActivity" />
+        <activity
+            android:label="@string/ump"
+            android:name=".universalmusicplayer.ui.MusicPlayerActivity" />
 
         <!-- A full screen activity showing controls and a seek bar for the current
                 playing music -->

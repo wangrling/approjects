@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -26,6 +25,7 @@ import com.android.approjects.universalmusicplayer.utils.LogHelper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 /**

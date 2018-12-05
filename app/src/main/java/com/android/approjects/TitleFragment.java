@@ -1,6 +1,8 @@
 package com.android.approjects;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.approjects.musicfx.MusicFXActivity;
+import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,7 @@ public class TitleFragment extends Fragment {
     }
 
     private Class<?>[] mAppMainClasses = {
+            MusicPlayerActivity.class,
             MusicFXActivity.class
     };
 

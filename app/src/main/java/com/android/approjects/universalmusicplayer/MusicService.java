@@ -1,5 +1,6 @@
 package com.android.approjects.universalmusicplayer;
 
+import android.content.Intent;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.session.MediaSession;
@@ -8,10 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.service.media.MediaBrowserService;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
@@ -22,6 +20,10 @@ import com.android.approjects.universalmusicplayer.utils.LogHelper;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.media.MediaBrowserServiceCompat;
 
 import static com.android.approjects.universalmusicplayer.utils.MediaIDHelper.MEDIA_ID_EMPTY_ROOT;
 import static com.android.approjects.universalmusicplayer.utils.MediaIDHelper.MEDIA_ID_ROOT;
@@ -133,13 +135,13 @@ public class MusicService extends MediaBrowserServiceCompat implements
     // 加载音乐播放列表
     // 通过subscribe函数获取音乐列表。
     @Override
-    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        LogHelper.d("OnLoadChildren: parentMediaId = " + parentId);
-        if (MEDIA_ID_EMPTY_ROOT.equals(parentId)) {
+    public void onLoadChildren(@NonNull String parentMediaId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        LogHelper.d("OnLoadChildren: parentMediaId = " + parentMediaId);
+        if (MEDIA_ID_EMPTY_ROOT.equals(parentMediaId)) {
             result.sendResult(new ArrayList<MediaBrowserCompat.MediaItem>());
         } else if (mMusicProvider.isInitialized()) {
             // If music library is ready, return immediately.
-            result.sendResult(mMusicProvider.getChildren(parentId, getResources()));
+            result.sendResult(mMusicProvider.getChildren(parentMediaId, getResources()));
         } else {
             // Otherwise, only return results when the music library is retrieved.
             result.detach();
@@ -147,25 +149,42 @@ public class MusicService extends MediaBrowserServiceCompat implements
 
                 @Override
                 public void onMusicCatalogReady(boolean success) {
-
+                    result.sendResult(mMusicProvider.getChildren(parentMediaId, getResources()));
                 }
             });
         }
     }
 
+    /**
+     * Callback method called from PlaybackManager whenever the music is about to play.
+     */
     @Override
     public void onPlaybackStart() {
+        mSession.setActive(true);
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
 
+        // The service needs to continue running even after the bound client (usually a
+        // MediaController) disconnects, otherwise the music playback will stop.
+        // Calling startService(Intent) will keep the service running until it is explicitly killed.
+        startService(new Intent(getApplicationContext(), MusicService.class));
+    }
+
+    /**
+     * Callback method called from PlaybackManager whenever the music stops playing.
+     */
+    @Override
+    public void onPlaybackStop() {
+        mSession.setActive(false);
+        // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
+        // potentially stopping the service.
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY);
+        stopForeground(true);
     }
 
     @Override
     public void onNotificationRequired() {
-
-    }
-
-    @Override
-    public void onPlaybackStop() {
-
+        mMediaNotificationManager.startNotification();
     }
 
     @Override

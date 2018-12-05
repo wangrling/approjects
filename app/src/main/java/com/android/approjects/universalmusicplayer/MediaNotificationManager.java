@@ -10,4 +10,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
     }
+
+    public void startNotification() {
+
+    }
 }

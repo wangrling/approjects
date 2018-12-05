@@ -29,7 +29,7 @@ import androidx.fragment.app.FragmentManager;
  * Abstract activity with toolbar, navigation drawer. Needs to be extended by
  * any activity that wants to be shown as a top level activity.
  *
- * a {@link androidx.appcompat.widget.Toolbar} with id 'toolbar',
+ * a {@link Toolbar} with id 'toolbar',
  * a {@link androidx.drawerlayout.widget.DrawerLayout} with id 'drawerLayout' and
  * a {@link android.widget.ListView} with id 'drawerList'.
  */
@@ -72,6 +72,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
             if (mDrawerToggle != null)
                 mDrawerToggle.onDrawerClosed(drawerView);
 
+            LogHelper.d("ActionBarCastActivity onDrawerClosed");
             if (mItemToOpenWhenDrawerCloses >= 0) {
 
                 // Additional options for how the Activity should be started.
@@ -198,7 +199,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
     }
 
     protected void initializeToolbar() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         if (mToolbar == null) {
             throw new IllegalStateException("Layout is required to include a Toolbar with id " +
                     "'toolbar'");
@@ -233,7 +234,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         item.setChecked(true);
                         mItemToOpenWhenDrawerCloses = item.getItemId();
-                        mDrawerLayout.closeDrawer(GravityCompat.START);
+                        mDrawerLayout.closeDrawers();
                         return true;
                     }
                 }

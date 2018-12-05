@@ -1,5 +1,6 @@
 package com.android.approjects.universalmusicplayer.model;
 
+import android.annotation.SuppressLint;
 import android.support.v4.media.MediaMetadataCompat;
 
 import com.android.approjects.universalmusicplayer.utils.LogHelper;
@@ -86,6 +87,7 @@ public class RemoteJSONSource implements MusicProviderSource {
         }
     }
 
+    @SuppressLint("WrongConstant")
     private MediaMetadataCompat buildFromJSON(JSONObject json, String basePath) throws JSONException {
         String title = json.getString(JSON_TITLE);
         String album = json.getString(JSON_ALBUM);
@@ -97,7 +99,7 @@ public class RemoteJSONSource implements MusicProviderSource {
         int totalTrackCount = json.getInt(JSON_TOTAL_TRACK_COUNT);
         int duration = json.getInt(JSON_DURATION) * 1000; // ms
 
-        LogHelper.d("Found music track: " + json);
+        LogHelper.d("JSON Found music track: " + json);
 
         // Media is stored relative to JSON file
         if (!source.startsWith("http")) {

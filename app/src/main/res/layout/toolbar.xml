@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Toolbar android:id="@+id/toolbar"
+<Toolbar
+    android:id="@+id/toolbar"
     android:background="@color/colorPrimary"
     android:elevation="4dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
