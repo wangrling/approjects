@@ -322,7 +322,7 @@ public class MusicProvider {
     private MediaBrowserCompat.MediaItem createBrowseableMediaItemForGenre(String genre,
                                                                            Resources resources) {
         MediaDescriptionCompat description = new MediaDescriptionCompat.Builder()
-                .setMediaId(MediaIDHelper.createMediaId(null, MEDIA_ID_MUSICS_BY_GENRE, genre))
+                .setMediaId(MediaIDHelper.createMediaID(null, MEDIA_ID_MUSICS_BY_GENRE, genre))
                 .setTitle(genre)
                 .setSubtitle(resources.getString(
                         R.string.browse_music_musics_by_genre_subtitle, genre))
