@@ -15,23 +15,34 @@ import android.widget.TextView;
 import com.android.approjects.AppApplication;
 import com.android.approjects.R;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -265,11 +276,127 @@ public class PlayerActivity extends Activity
             Uri[] uris;
             String[] extensions;
             if (ACTION_VIEW.equals(action)) {
-                uris = new Uri[]{intent.getData()};
-                extensions = new String[] {
-                        intent.getStringExtra(EXTENSION_EXTRA)
-                };
+                uris = new Uri[] {intent.getData()};
+                extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+            } else if (ACTION_VIEW_LIST.equals(action)) {
+                String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
+                uris = new Uri[uriStrings.length];
+                for (int i = 0; i < uriStrings.length; i++) {
+                    uris[i] = Uri.parse(uriStrings[i]);
+                }
+                extensions = intent.getStringArrayExtra(EXTENSION_LIST_EXTRA);
+                if (extensions == null) {
+                    extensions = new String[uriStrings.length];
+                }
+            } else {
+                showToast(getString(R.string.unexpected_intent_action, action));
+                finish();
+                return;
             }
+            if (!Util.checkCleartextTrafficPermitted(uris)) {
+                showToast(R.string.error_cleartext_not_permitted);
+                return ;
+            }
+            if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+                // The player will be reinitialized if the permission is granted.
+                return;
+            }
+
+            DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+            if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
+                String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
+                String[] keyRequestPropertiesArray =
+                        intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA);
+                boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA, false);
+                int errorStringId = R.string.error_drm_unknown;
+                if (Util.SDK_INT < 18) {
+                    errorStringId = R.string.error_drm_not_supported;
+                } else {
+                    try {
+                        String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
+                                : DRM_SCHEME_UUID_EXTRA;
+                        UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
+                        if (drmSchemeUuid == null) {
+                            errorStringId = R.string.error_drm_unsupported_scheme;
+                        } else {
+                            drmSessionManager =
+                                    buildDrmSessionManagerV18(
+                                            drmSchemeUuid, drmLicenseUrl, keyRequestPropertiesArray, multiSession);
+                        }
+                    } catch (UnsupportedDrmException e) {
+                        errorStringId = e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
+                                ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
+                    }
+                }
+                if (drmSessionManager == null) {
+                    showToast(errorStringId);
+                    finish();
+                    return;
+                }
+            }
+
+            TrackSelection.Factory trackSelectionFactory;
+            String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
+            if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
+                trackSelectionFactory = new AdaptiveTrackSelection.Factory();
+            } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
+                trackSelectionFactory = new RandomTrackSelection.Factory();
+            } else {
+                showToast(R.string.error_unrecognized_abr_algorithm);
+                finish();
+                return ;
+            }
+
+            boolean preferExtensionDecoders =
+                    intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
+            @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
+                    ((DemoApplication) getApplication()).useExtensionRenderers()
+                            ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+                            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+                            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
+            DefaultRenderersFactory renderersFactory =
+                    new DefaultRenderersFactory(this, extensionRendererMode);
+
+            trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+            trackSelector.setParameters(trackSelectorParameters);
+            lastSeenTrackGroupArray = null;
+
+            player =
+                    ExoPlayerFactory.newSimpleInstance(
+                            this, renderersFactory, trackSelector, drmSessionManager);
+            player.addListener(new PlayerEventListener());
+            player.setPlayWhenReady(startAutoPlay);
+            player.addAnalyticsListener(new EventLogger(trackSelector));
+            playerView.setPlayer(player);
+            playerView.setPlaybackPreparer(this);
+            debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+            debugViewHelper.start();
+
+            MediaSource[] mediaSources = new MediaSource[uris.length];
+            for (int i = 0; i < uris.length; i++) {
+                mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+            }
+            mediaSource = mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+            String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
+            if (adTagUriString != null) {
+                Uri adTagUri = Uri.parse(adTagUriString);
+                if (!adTagUri.equals(loadedAdTagUri)) {
+                    releaseAdsLoader();
+                    loadedAdTagUri = adTagUri;
+                }
+                MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
+                if (adsMediaSource != null) {
+                    mediaSource = adsMediaSource;
+                } else {
+                    showToast(R.string.ima_not_loaded);
+                }
+            } else {
+                releaseAdsLoader();
+            }
+        }
+        boolean haveStartPosition = startWindow != C.INDEX_UNSET;
+        if (haveStartPosition) {
+
         }
     }
 
