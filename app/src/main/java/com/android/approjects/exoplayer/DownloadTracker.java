@@ -7,10 +7,12 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.android.approjects.R;
 import com.google.android.exoplayer2.C;
@@ -18,9 +20,12 @@ import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadHelper;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadHelper;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadHelper;
@@ -88,6 +93,10 @@ public class DownloadTracker implements DownloadManager.Listener {
                 deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers());
     }
 
+    private void loadTrackedActions(DownloadAction.Deserializer[] deserializers) {
+
+    }
+
     public void addListener(Listener listener) {
         listeners.add(listener);
     }
@@ -109,33 +118,70 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
+        Log.d(TAG, "toggleDownload");
         if (isDownloaded(uri)) {
             DownloadAction removeAction =
                     getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
             startServiceWithAction(removeAction);
         } else {
-            StartDownloadDialogHelper helper;
-
+            StartDownloadDialogHelper helper =
+                    new StartDownloadDialogHelper(activity, getDownloadHelper(uri, extension), name);
+            helper.prepare();
         }
-    }
-
-    private void startServiceWithAction(DownloadAction removeAction) {
-
     }
 
     @Override
     public void onInitialized(DownloadManager downloadManager) {
-
+        // Di nothing.
     }
 
     @Override
     public void onTaskStateChanged(DownloadManager downloadManager, DownloadManager.TaskState taskState) {
-
+        DownloadAction action = taskState.action;
+        Uri uri = action.uri;
+        if ((action.isRemoveAction && taskState.state == DownloadManager.TaskState.STATE_COMPLETED) ||
+                (!action.isRemoveAction && taskState.state == DownloadManager.TaskState.STATE_FAILED)) {
+            // A download has been removed, or has failed. Stop tracking it.
+            if (trackedDownloadStates.remove(uri) != null) {
+                handleTrackedDownloadStatesChanged();
+            }
+        }
     }
 
     @Override
     public void onIdle(DownloadManager downloadManager) {
+        // Do nothing.
+    }
 
+    private void handleTrackedDownloadStatesChanged() {
+        for (Listener listener : listeners) {
+            listener.onDownloadsChanged();
+        }
+
+        final DownloadAction[] actions = trackedDownloadStates.values().toArray(new DownloadAction[0]);
+        actionFileWriteHandler.post(
+                () -> {
+                    try {
+                        actionFile.store(actions);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to store tracked actions", e);
+                    }
+                });
+    }
+
+    private void startDownload(DownloadAction action) {
+        if (trackedDownloadStates.containsKey(action.uri)) {
+            // This content is already being downloaded. Do nothing.
+            return ;
+        }
+
+        trackedDownloadStates.put(action.uri, action);
+        handleTrackedDownloadStatesChanged();
+        startServiceWithAction(action);
+    }
+
+    private void startServiceWithAction(DownloadAction action) {
+        DownloadService.startWithAction(context, DemoDownloadService.class, action, false);
     }
 
     private DownloadHelper getDownloadHelper(Uri uri, String extension) {
@@ -177,7 +223,7 @@ public class DownloadTracker implements DownloadManager.Listener {
 
             // Inflate with the builder's context to ensure the correct style is used.
             LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
-            dialogView = dialogInflater.inflate(R.layout.layout_download_dialog);
+            dialogView = dialogInflater.inflate(R.layout.start_download_dialog, null);
 
             trackKeys = new ArrayList<>();
             trackTitles = new ArrayAdapter<>(
@@ -187,21 +233,52 @@ public class DownloadTracker implements DownloadManager.Listener {
             representationList.setAdapter(trackTitles);
         }
 
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-
+        public void prepare() {
+            downloadHelper.prepare(this);
         }
-
-
 
         @Override
         public void onPrepared(DownloadHelper helper) {
-
+            for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
+                TrackGroupArray trackGroups = downloadHelper.getTrackGroups(i);
+                for (int j = 0; j < trackGroups.length; j++) {
+                    TrackGroup trackGroup = trackGroups.get(j);
+                    for (int k = 0; k < trackGroup.length; k++) {
+                        trackKeys.add(new TrackKey(i, j, k));
+                        trackTitles.add(trackNameProvider.getTrackName(trackGroup.getFormat(k)));
+                    }
+                }
+            }
+            if (!trackKeys.isEmpty()) {
+                builder.setView(dialogView);
+            }
+            builder.create().show();
         }
 
         @Override
         public void onPrepareError(DownloadHelper helper, IOException e) {
-
+            Toast.makeText(
+                    context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
+                    .show();
+            Log.e(TAG, "Failed to start download", e);
         }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            ArrayList<TrackKey> selectedTrackKeys = new ArrayList<>();
+            for (int i = 0; i < representationList.getChildCount(); i++) {
+                if (representationList.isItemChecked(i)) {
+                    selectedTrackKeys.add(trackKeys.get(i));
+                }
+            }
+
+            if (!selectedTrackKeys.isEmpty() || trackKeys.isEmpty()) {
+                // We have selected keys, or we're dealing with single stream content.
+                DownloadAction downloadAction =
+                        downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), selectedTrackKeys);
+                startDownload(downloadAction);
+            }
+        }
+
     }
 }

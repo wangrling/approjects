@@ -49,9 +49,9 @@ public class AppProjectsActivity extends Activity
             FragmentTransaction localFragmentTransaction = localFragmentManager
                     .beginTransaction();
 
-            // Adds the TitleFragment to the host View
+            // Adds the AppInfoFragment to the host View
             localFragmentTransaction.add(R.id.fragment_host,
-                    new TitleFragment(), TITLE_FRAGMENT_TAG);
+                    new AppInfoFragment(), TITLE_FRAGMENT_TAG);
 
             // Commits this transaction to display the Fragment
             localFragmentTransaction.commit();

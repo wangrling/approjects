@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/prefer_extension_decoders"
+        android:title="Prefer extension decoders"
+        app:showAsAction="never"
+        android:checkable="true"/>
+    <item android:id="@+id/random_abr"
+        android:title="Enable random ABR"
+        app:showAsAction="never"
+        android:checkable="true"/>
+</menu>

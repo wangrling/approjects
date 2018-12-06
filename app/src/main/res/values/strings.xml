@@ -31,4 +31,16 @@
     <string name="browse_musics_by_genre_subtitle">%1$s songs</string>
 
 
+    <!-- ExoPlayer -->
+    <string name="sample_list_load_error">One or more sample lists failed to load</string>
+    <string name="download_playlist_unsupported">This demo app does not support downloading playlists</string>
+    <string name="download_scheme_unsupported">This demo app only supports downloading http streams</string>
+    <string name="download_ads_unsupported">IMA does not support offline ads</string>
+    <string name="download_drm_unsupported">This demo app does not support downloading protected content</string>
+    <string name="download_start_error">Failed to start download</string>
+    <string name="exo">ExoPlayer</string>
+    <string name="error_unrecognized_stereo_mode">Unrecognized stereo mode</string>
+    <string name="storage_permission_denied">Permission to access storage was denied</string>
+
+
 </resources>

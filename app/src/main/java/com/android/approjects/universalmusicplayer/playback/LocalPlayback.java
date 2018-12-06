@@ -200,10 +200,12 @@ public class LocalPlayback implements Playback {
             }
 
             if (mExoPlayer == null) {
-                mExoPlayer = ExoPlayerFactory.newSimpleInstance(
-                        new DefaultRenderersFactory(mContext),
-                        new DefaultTrackSelector(),
-                        new DefaultLoadControl());
+
+                // mExoPlayer = ExoPlayerFactory.newSimpleInstance(
+                //         new DefaultRenderersFactory(mContext),
+                //         new DefaultTrackSelector(),
+                //         new DefaultLoadControl());
+                mExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext);
 
                 mExoPlayer.addListener(mEventListener);
             }

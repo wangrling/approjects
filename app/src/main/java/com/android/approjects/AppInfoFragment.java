@@ -1,6 +1,5 @@
 package com.android.approjects;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.approjects.exoplayer.SampleChooserActivity;
 import com.android.approjects.musicfx.MusicFXActivity;
 import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
 
@@ -25,19 +25,22 @@ import androidx.annotation.Nullable;
 
 import static com.android.approjects.AppProjectsActivity.TAG;
 
-public class TitleFragment extends Fragment {
+public class AppInfoFragment extends Fragment {
 
-    private static List<Pair<String, String>> mAppInfos = new ArrayList<>();
+    private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
-        mAppInfos.add(new Pair("UniversalMusicPlayer",
-                "Implement an audio media app that works across multiple form factors."));
+        mAppInfos.add(new Pair<>("ExoPlayer", R.drawable.exoplayer));
+
+        // 数据没有办法显示
+        mAppInfos.add(new Pair("UniversalMusicPlayer", R.drawable.ump));
 
         // 具体实现还需要等UniversalMusicPlayer写完。
-        mAppInfos.add(new Pair("MusicFX", "Equalizer Virtualizer BassBoost PresetReverb"));
+        mAppInfos.add(new Pair("MusicFX", R.drawable.musicfx));
     }
 
     private Class<?>[] mAppMainClasses = {
+            SampleChooserActivity.class,
             MusicPlayerActivity.class,
             MusicFXActivity.class
     };
@@ -54,7 +57,7 @@ public class TitleFragment extends Fragment {
             }
 
             @Override
-            public Pair<String, String> getItem(int position) {
+            public Pair<String, Integer> getItem(int position) {
                 return mAppInfos.get(position);
             }
 
@@ -66,10 +69,11 @@ public class TitleFragment extends Fragment {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = getActivity().getLayoutInflater().
-                        inflate(android.R.layout.simple_list_item_2, parent, false);
+                        inflate(R.layout.fragment_list_item, parent, false);
 
                 ((TextView) view.findViewById(android.R.id.text1)).setText(mAppInfos.get(position).first);
-                ((TextView) view.findViewById(android.R.id.text2)).setText(mAppInfos.get(position).second);
+                (view.findViewById(android.R.id.icon))
+                        .setBackground(getResources().getDrawable(mAppInfos.get(position).second, null));
 
                 return view;
             }
