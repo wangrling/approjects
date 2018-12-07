@@ -27,7 +27,7 @@ private:
                   unsigned nSamples, unsigned nChannels);
 
     // handle to underlying libFLAC parser
-    FLAC__StreamDecoder *mDecoder;
+    // FLAC__StreamDecoder *mDecoder;
 };
 
 #endif //APPROJECTS_FLAC_PARSER_H

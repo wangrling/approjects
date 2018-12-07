@@ -30,6 +30,9 @@ public class AppInfoFragment extends Fragment {
     private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
+        mAppInfos.add(new Pair<>("Grafika", R.drawable.mediacodec));
+
+        // 音视频播放器
         mAppInfos.add(new Pair<>("ExoPlayer", R.drawable.exoplayer));
 
         // 数据没有办法显示

@@ -163,7 +163,7 @@ public final class FlacExtractor implements Extractor {
             decoderJni.reset(position);
         }
         if (flacBinarySearchSeeker != null) {
-            flacBinarySearchSeeker.setSeekTragetUs(timeUs);
+            flacBinarySearchSeeker.setSeekTargetUs(timeUs);
         }
     }
 
@@ -276,7 +276,7 @@ public final class FlacExtractor implements Extractor {
         trackOutput.format(mediaFormat);
     }
 
-    private int handlePendingSeek(ExtractorInput input, PositionHolder seekPosition) {
+    private int handlePendingSeek(ExtractorInput input, PositionHolder seekPosition) throws IOException, InterruptedException {
         int seekResult =
                 flacBinarySearchSeeker.handlePendingSeek(input, seekPosition, outputFrameHolder);
         ByteBuffer outputByteBuffer = outputFrameHolder.byteBuffer;

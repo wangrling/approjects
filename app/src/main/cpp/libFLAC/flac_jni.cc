@@ -45,7 +45,7 @@ struct Context {
 
     Context() {
         source = new JavaDataSource();
-        parser = new FLACParser();
+        parser = new FLACParser(source);
     }
 
     ~Context() {
@@ -59,12 +59,6 @@ Java_com_android_approjects_exoplayer_extension_flac_FlacDecoderJni_flacInit(JNI
                                                                              jobject instance) {
 
     // TODO
-    Context *context = new Context;
-    if (!context->parser->init()) {
-        delete context;
-        return 0;
-    }
-    return reinterpret_cast<intptr_t >(context);
 }
 
 
