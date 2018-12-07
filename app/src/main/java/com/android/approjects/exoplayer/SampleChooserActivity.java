@@ -62,6 +62,9 @@ public class SampleChooserActivity extends Activity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_chooser_sample);
+
+        setActionBar(findViewById(R.id.toolbar));
+
         sampleAdapter = new SampleAdapter();
         ExpandableListView sampleListView = findViewById(R.id.sample_list);
         sampleListView.setAdapter(sampleAdapter);

@@ -2,10 +2,10 @@
 # library.
 cmake_minimum_required(VERSION 3.4.1)
 
-add_library( libFLAC
-            SHARED
-            libFLAC/flac_jni.cc
-            libFLAC/flac_parser.cc
+add_library( flacJNI
+             SHARED
+             libFLAC/flac_jni.cc
+             libFLAC/flac_parser.cc
             )
 
 # Creates the project's shared lib: libnative-lib.so.
