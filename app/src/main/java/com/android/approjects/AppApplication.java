@@ -1,6 +1,8 @@
 package com.android.approjects;
 
+import android.Manifest;
 import android.app.Application;
+import android.content.pm.PackageManager;
 
 import com.android.approjects.exoplayer.DownloadTracker;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -19,6 +21,8 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 
+import androidx.core.app.ActivityCompat;
+
 // 在进入Activity之前初始化。
 
 public class AppApplication extends Application {
@@ -29,9 +33,6 @@ public class AppApplication extends Application {
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
     }
-
-
-
 
     /**
      * 和ExoPlayer相关！

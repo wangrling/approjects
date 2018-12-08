@@ -10,7 +10,7 @@ import com.google.android.exoplayer2.util.LibraryLoader;
 public final class FlacLibrary {
 
     static {
-        ExoPlayerLibraryInfo.registerModule("goog.exo.flac");
+        ExoPlayerLibraryInfo.registerModule("google.exo.flac");
     }
 
     private static final LibraryLoader LOADER = new LibraryLoader("flacJNI");

@@ -21,6 +21,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
+        <activity android:name=".permissions.PermissionsActivity" />
+
+        <activity android:name=".grafika.GrafikaActivity" />
 
         <activity android:name=".exoplayer.SampleChooserActivity"
             android:label="@string/exo">

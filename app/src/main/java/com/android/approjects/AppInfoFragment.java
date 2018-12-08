@@ -15,7 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.approjects.exoplayer.SampleChooserActivity;
+import com.android.approjects.grafika.GrafikaActivity;
 import com.android.approjects.musicfx.MusicFXActivity;
+import com.android.approjects.permissions.PermissionsActivity;
 import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
 
 import java.util.ArrayList;
@@ -30,6 +32,11 @@ public class AppInfoFragment extends Fragment {
     private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
+
+        // 权限申请
+        mAppInfos.add(new Pair<>("RuntimePermissions", R.drawable.permissions));
+
+        // 编解码
         mAppInfos.add(new Pair<>("Grafika", R.drawable.mediacodec));
 
         // 音视频播放器
@@ -43,6 +50,8 @@ public class AppInfoFragment extends Fragment {
     }
 
     private Class<?>[] mAppMainClasses = {
+            PermissionsActivity.class,
+            GrafikaActivity.class,
             SampleChooserActivity.class,
             MusicPlayerActivity.class,
             MusicFXActivity.class

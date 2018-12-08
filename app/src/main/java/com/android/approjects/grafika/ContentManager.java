@@ -113,7 +113,7 @@ public class ContentManager {
     }
 
     private void prepare(ProgressUpdater prog, int tag) {
-        GenerateMovie movie;
+        GeneratedMovie movie;
         switch (tag) {
             case MOVIE_EIGHT_RECTS:
                 movie = new MovieEightRects();
@@ -189,13 +189,20 @@ public class ContentManager {
                 mCurrentIndex = i;
                 updateProgress(0);
                 try {
-                    contentManager.prepare(this, mTags);
+                    contentManager.prepare(this, mTags[i]);
                 } catch (RuntimeException re) {
                     mFailure = re;
                     break;
                 }
                 updateProgress(100);
             }
+
+            if (mFailure != null) {
+                Log.w(TAG, "Failed while generating content", mFailure);
+            } else {
+                Log.d(TAG, "generation complete");
+            }
+            return 0;
         }
 
         @Override

@@ -1,6 +1,10 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">approjects</string>
 
+    <!-- RuntimePermissions -->
+    <string name="permission_camera_rationale">Camera permission is needed to show the camera preview.</string>
+    <string name="permission_contacts_rationale">Contacts permissions are needed to demonstrate access.</string>
+
 
     <!--MusicFX -->
     <!-- ControlPanelMusic strings -->
