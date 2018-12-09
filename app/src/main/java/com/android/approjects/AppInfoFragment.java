@@ -14,10 +14,13 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.approjects.cameraraw.CameraRawActivity;
+import com.android.approjects.deskclock.DeskClock;
 import com.android.approjects.exoplayer.SampleChooserActivity;
 import com.android.approjects.grafika.GrafikaActivity;
 import com.android.approjects.musicfx.MusicFXActivity;
 import com.android.approjects.permissions.PermissionsActivity;
+import com.android.approjects.soundrecorder.SoundRecorder;
 import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
 
 import java.util.ArrayList;
@@ -32,6 +35,21 @@ public class AppInfoFragment extends Fragment {
     private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
+
+        //　加载大图片。
+        mAppInfos.add(new Pair<>("DisplayBitmaps", R.drawable.displaybitmap));
+
+        // 速度追踪记录
+        mAppInfos.add(new Pair<>("SpeedTracker", R.drawable.speedtracker));
+
+        // 相机原始数据
+        mAppInfos.add(new Pair<>("Camera2RAW", R.drawable.camera2raw));
+
+        // 闹钟
+        mAppInfos.add(new Pair<>("DeskClock", R.drawable.deskclock));
+
+        // 录音机
+        mAppInfos.add(new Pair<>("SoundRecorder", R.drawable.soundrecorder));
 
         // 权限申请
         mAppInfos.add(new Pair<>("RuntimePermissions", R.drawable.permissions));
@@ -50,6 +68,9 @@ public class AppInfoFragment extends Fragment {
     }
 
     private Class<?>[] mAppMainClasses = {
+            CameraRawActivity.class,
+            DeskClock.class,
+            SoundRecorder.class,
             PermissionsActivity.class,
             GrafikaActivity.class,
             SampleChooserActivity.class,

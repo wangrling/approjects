@@ -15,37 +15,34 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import androidx.core.content.ContextCompat;
-
 /**
- * Generate an MP4 file using OpenGL ES drawing commands. Demonstrates the use of
- * MediaMuxer and MediaCodec with Surface input.
- *
+ * Generate an MP4 file using OpenGL ES drawing commands.  Demonstrates the use of MediaMuxer
+ * and MediaCodec with Surface input.
  * <p>
- *     This uses various features first available in Android "Jellybean" 4.3 (API 18).
- *     There is no equivalent functionality in previous releases.
- * </p>
+ * This uses various features first available in Android "Jellybean" 4.3 (API 18).  There is
+ * no equivalent functionality in previous releases.
+ * <p>
+ * (This was derived from bits and pieces of CTS tests, and is packaged as such, but is not
+ * currently part of CTS.)
  */
-
 public class EncodeAndMuxTest {
     private static final String TAG = "EncodeAndMuxTest";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;           // lots of logging
 
     // where to put the output file (note: /sdcard requires WRITE_EXTERNAL_STORAGE permission)
     private static final File OUTPUT_DIR = Environment.getExternalStorageDirectory();
 
-    // Parameters for the encoder.
+    // parameters for the encoder
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
-    private static final int FRAME_RATE = 15;       // 15fps
-    private static final int IFRAME_INTERVAL = 10;      // 10 seconds between I-frames.
-    private static final int NUM_FRAMES = 30;           // two seconds of video.
+    private static final int FRAME_RATE = 15;               // 15fps
+    private static final int IFRAME_INTERVAL = 10;          // 10 seconds between I-frames
+    private static final int NUM_FRAMES = 30;               // two seconds of video
 
     // RGB color values for generated frames
     private static final int TEST_R0 = 0;
@@ -55,13 +52,13 @@ public class EncodeAndMuxTest {
     private static final int TEST_G1 = 50;
     private static final int TEST_B1 = 186;
 
-    // Size of a frame, in pixels
+    // size of a frame, in pixels
     private int mWidth = -1;
     private int mHeight = -1;
-    // Bit rate, in bits per second.
+    // bit rate, in bits per second
     private int mBitRate = -1;
 
-    // Encoder / muxer state.
+    // encoder / muxer state
     private MediaCodec mEncoder;
     private CodecInputSurface mInputSurface;
     private MediaMuxer mMuxer;
@@ -71,9 +68,13 @@ public class EncodeAndMuxTest {
     // allocate one of these up front so we don't need to do it every time
     private MediaCodec.BufferInfo mBufferInfo;
 
+
+    /**
+     * Tests encoding of AVC video from a Surface.  The output is saved as an MP4 file.
+     */
     @Test
     public void testEncodeVideoToMp4() {
-        // QVGA a4 2Mbps
+        // QVGA at 2Mbps
         mWidth = 320;
         mHeight = 240;
         mBitRate = 2000000;
@@ -90,23 +91,19 @@ public class EncodeAndMuxTest {
                 generateSurfaceFrame(i);
                 mInputSurface.setPresentationTime(computePresentationTimeNsec(i));
 
-                // Submit it to the encoder. The eglSwapBuffers call will block
-                // if the input is full, which would be bad if it stayed full until
-                // we dequeued an output buffer (which we can't do, since we're stuck
-                // here). So long as we fully drain the encoder before supplying
-                // additional input, the system guarantees that we
+                // Submit it to the encoder.  The eglSwapBuffers call will block if the input
+                // is full, which would be bad if it stayed full until we dequeued an output
+                // buffer (which we can't do, since we're stuck here).  So long as we fully drain
+                // the encoder before supplying additional input, the system guarantees that we
                 // can supply another frame without blocking.
-                if (VERBOSE)
-                    Log.d(TAG, "sending frame " + i + " to encoder");
+                if (VERBOSE) Log.d(TAG, "sending frame " + i + " to encoder");
                 mInputSurface.swapBuffers();
             }
 
-            // send end-of-stream to encoder, and drain remaining output.
+            // send end-of-stream to encoder, and drain remaining output
             drainEncoder(true);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
-            // Release encoder, muxer, and input Surface.
+            // release encoder, muxer, and input Surface
             releaseEncoder();
         }
 
@@ -118,12 +115,12 @@ public class EncodeAndMuxTest {
     /**
      * Configures encoder and muxer state, and prepares the input Surface.
      */
-    private void prepareEncoder() throws IOException {
+    private void prepareEncoder() {
         mBufferInfo = new MediaCodec.BufferInfo();
 
         MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
 
-        // Set some properties. Failing to specify some of these can cause the MediaCodec
+        // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
@@ -139,10 +136,12 @@ public class EncodeAndMuxTest {
         // you will likely want to defer instantiation of CodecInputSurface until after the
         // "display" EGL context is created, then modify the eglCreateContext call to
         // take eglGetCurrentContext() as the share_context argument.
-        mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
+        try {
+            mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-
-        // 传递Surface变量。
         mInputSurface = new CodecInputSurface(mEncoder.createInputSurface());
         mEncoder.start();
 
@@ -150,9 +149,11 @@ public class EncodeAndMuxTest {
         // hard-coded output directory.
         String outputPath = new File(OUTPUT_DIR,
                 "test." + mWidth + "x" + mHeight + ".mp4").toString();
+        Log.d(TAG, "output file is " + outputPath);
 
-        // Create a MediaMuxer. we can't add the video track and start() the muxer here,
-        // because our MediaFormat doesn't have the Magic Goodies. These can only be
+
+        // Create a MediaMuxer.  We can't add the video track and start() the muxer here,
+        // because our MediaFormat doesn't have the Magic Goodies.  These can only be
         // obtained from the encoder after it has started processing data.
         //
         // We're not actually interested in multiplexing audio.  We just want to convert
@@ -188,7 +189,6 @@ public class EncodeAndMuxTest {
         }
     }
 
-
     /**
      * Extracts all pending data from the encoder.
      * <p>
@@ -198,16 +198,14 @@ public class EncodeAndMuxTest {
      */
     private void drainEncoder(boolean endOfStream) {
         final int TIMEOUT_USEC = 10000;
-        if (VERBOSE)
-            Log.d(TAG, "drainEncoder(" + endOfStream + ")");
+        if (VERBOSE) Log.d(TAG, "drainEncoder(" + endOfStream + ")");
+
         if (endOfStream) {
-            if (VERBOSE)
-                Log.d(TAG, "sending EOS to encoder");
+            if (VERBOSE) Log.d(TAG, "sending EOS to encoder");
             mEncoder.signalEndOfInputStream();
         }
 
         ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();
-
         while (true) {
             int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
@@ -218,17 +216,17 @@ public class EncodeAndMuxTest {
                     if (VERBOSE) Log.d(TAG, "no output available, spinning to await EOS");
                 }
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                // not expected for an encoder.
+                // not expected for an encoder
                 encoderOutputBuffers = mEncoder.getOutputBuffers();
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                // should happen before receiving buffers, and should only happen once.
+                // should happen before receiving buffers, and should only happen once
                 if (mMuxerStarted) {
                     throw new RuntimeException("format changed twice");
                 }
                 MediaFormat newFormat = mEncoder.getOutputFormat();
                 Log.d(TAG, "encoder output format changed: " + newFormat);
 
-                // Now that we have the Magic Goodies, start the muxer.
+                // now that we have the Magic Goodies, start the muxer
                 mTrackIndex = mMuxer.addTrack(newFormat);
                 mMuxer.start();
                 mMuxerStarted = true;
@@ -237,8 +235,8 @@ public class EncodeAndMuxTest {
                         encoderStatus);
                 // let's ignore it
             } else {
-                ByteBuffer encodeData = encoderOutputBuffers[encoderStatus];
-                if (encodeData == null) {
+                ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
+                if (encodedData == null) {
                     throw new RuntimeException("encoderOutputBuffer " + encoderStatus +
                             " was null");
                 }
@@ -255,14 +253,24 @@ public class EncodeAndMuxTest {
                         throw new RuntimeException("muxer hasn't started");
                     }
 
-                    // Adjust the ByteBuffer values to match BufferInfo (not needed?)
-                    encodeData.position(mBufferInfo.offset);
-                    encodeData.limit(mBufferInfo.offset + mBufferInfo.size);
+                    // adjust the ByteBuffer values to match BufferInfo (not needed?)
+                    encodedData.position(mBufferInfo.offset);
+                    encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
 
-                    mMuxer.writeSampleData(mTrackIndex, encodeData, mBufferInfo);
+                    mMuxer.writeSampleData(mTrackIndex, encodedData, mBufferInfo);
                     if (VERBOSE) Log.d(TAG, "sent " + mBufferInfo.size + " bytes to muxer");
                 }
 
+                mEncoder.releaseOutputBuffer(encoderStatus, false);
+
+                if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+                    if (!endOfStream) {
+                        Log.w(TAG, "reached end of stream unexpectedly");
+                    } else {
+                        if (VERBOSE) Log.d(TAG, "end of stream reached");
+                    }
+                    break;      // out of while
+                }
             }
         }
     }
@@ -281,7 +289,7 @@ public class EncodeAndMuxTest {
 
         int startX, startY;
         if (frameIndex < 4) {
-            // (0, 0) is bottom-left in GL.
+            // (0,0) is bottom-left in GL
             startX = frameIndex * (mWidth / 4);
             startY = mHeight / 2;
         } else {
@@ -292,7 +300,6 @@ public class EncodeAndMuxTest {
         GLES20.glClearColor(TEST_R0 / 255.0f, TEST_G0 / 255.0f, TEST_B0 / 255.0f, 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-        // 裁剪矩形区域，填充相关颜色。
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(startX, startY, mWidth / 4, mHeight / 2);
         GLES20.glClearColor(TEST_R1 / 255.0f, TEST_G1 / 255.0f, TEST_B1 / 255.0f, 1.0f);
@@ -308,6 +315,16 @@ public class EncodeAndMuxTest {
         return frameIndex * ONE_BILLION / FRAME_RATE;
     }
 
+
+    /**
+     * Holds state associated with a Surface used for MediaCodec encoder input.
+     * <p>
+     * The constructor takes a Surface obtained from MediaCodec.createInputSurface(), and uses that
+     * to create an EGL window surface.  Calls to eglSwapBuffers() cause a frame of data to be sent
+     * to the video encoder.
+     * <p>
+     * This object owns the Surface -- releasing this will release the Surface too.
+     */
     private static class CodecInputSurface {
         private static final int EGL_RECORDABLE_ANDROID = 0x3142;
 
@@ -330,14 +347,13 @@ public class EncodeAndMuxTest {
         }
 
         /**
-         * Prepares EGL. We want a GLES 2.0 context and a surface that supports recording.
+         * Prepares EGL.  We want a GLES 2.0 context and a surface that supports recording.
          */
         private void eglSetup() {
             mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
             if (mEGLDisplay == EGL14.EGL_NO_DISPLAY) {
                 throw new RuntimeException("unable to get EGL14 display");
             }
-
             int[] version = new int[2];
             if (!EGL14.eglInitialize(mEGLDisplay, version, 0, version, 1)) {
                 throw new RuntimeException("unable to initialize EGL14");
@@ -364,9 +380,8 @@ public class EncodeAndMuxTest {
                     EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
                     EGL14.EGL_NONE
             };
-
-            mEGLContext = EGL14.eglCreateContext(mEGLDisplay, configs[0],
-                    EGL14.EGL_NO_CONTEXT, attrib_list, 0);
+            mEGLContext = EGL14.eglCreateContext(mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT,
+                    attrib_list, 0);
             checkEglError("eglCreateContext");
 
             // Create a window surface, and attach it to the Surface we received.
@@ -376,16 +391,6 @@ public class EncodeAndMuxTest {
             mEGLSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, configs[0], mSurface,
                     surfaceAttribs, 0);
             checkEglError("eglCreateWindowSurface");
-        }
-
-        /**
-         * Calls eglSwapBuffers. Use this to "publish" the current frame.
-         */
-        public boolean swapBuffers() {
-            boolean result = EGL14.eglSwapBuffers(mEGLDisplay, mEGLSurface);
-            checkEglError("eglSwapBuffers");
-
-            return result;
         }
 
         /**
@@ -420,7 +425,16 @@ public class EncodeAndMuxTest {
         }
 
         /**
-         * Send the presentation time stamp to EGL. Time is expressed in nanoseconds.
+         * Calls eglSwapBuffers.  Use this to "publish" the current frame.
+         */
+        public boolean swapBuffers() {
+            boolean result = EGL14.eglSwapBuffers(mEGLDisplay, mEGLSurface);
+            checkEglError("eglSwapBuffers");
+            return result;
+        }
+
+        /**
+         * Sends the presentation time stamp to EGL.  Time is expressed in nanoseconds.
          */
         public void setPresentationTime(long nsecs) {
             EGLExt.eglPresentationTimeANDROID(mEGLDisplay, mEGLSurface, nsecs);
@@ -428,12 +442,12 @@ public class EncodeAndMuxTest {
         }
 
         /**
-         * Checks for EGL errors. Throws an exception if one if found.
+         * Checks for EGL errors.  Throws an exception if one is found.
          */
         private void checkEglError(String msg) {
             int error;
             if ((error = EGL14.eglGetError()) != EGL14.EGL_SUCCESS) {
-                throw new RuntimeException(msg +": EGL error: 0x" + Integer.toHexString(error));
+                throw new RuntimeException(msg + ": EGL error: 0x" + Integer.toHexString(error));
             }
         }
     }

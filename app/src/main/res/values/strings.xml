@@ -61,6 +61,26 @@
 
 
     <!-- Grafika -->
+
+    <!-- SoundRecorder -->
     <string name="preparing_content">Preparing content&#8230;</string>
+    <string name="def_save_name_prefix">Rec</string>
+    <string name="format_setting">File type</string>
+    <string name="storage_setting">Storage location</string>
+    <string name="keyboard">Keyboard</string>
+    <string name="format_setting_aac_item">AAC</string>
+    <string name="format_setting_amr_item">AMR</string>
+    <string name="format_setting_3gpp_item">3GPP</string>
+    <string name="format_setting_wav_item">WAV</string>
+    <string name="storage_setting_sdcard_item">SD card</string>
+    <string name="storage_setting_local_item">Phone storage</string>
+    <string name="save_dialog_title">Save recording?</string>
+    <string name="discard">Diacard</string>
+    <string name="rename_dialog_save">Save</string>
+    <string name="file_deleted">File has been deleted!</string>
+    <string name="rename_dialog_info_null">File name can\\\'t be null.</string>
+    <string name="rename_dialog_info_length_limit">Maximum character limit reached.</string>
+    <string name="rename_dialog_info_exists">The name already exists.</string>
+    <string name="deskclock">DeskClock</string>
 
 </resources>

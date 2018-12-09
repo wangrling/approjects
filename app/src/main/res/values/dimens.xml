@@ -9,4 +9,12 @@
     <dimen name="eq_slider_margin">5dip</dimen>
     <dimen name="eq_slider_height">180dip</dimen>
     <dimen name="action_bar_switch_padding">16dip</dimen>
+
+    <!-- minus status bar height (24dp) in landscape. -->
+    <dimen name="vumeter_layout_margin_minus">11dp</dimen>
+    <dimen name="vumeter_layout_margin">20dp</dimen>
+    <dimen name="vumeter_outer_width">2dp</dimen>
+    <dimen name="vumeter_outer_inner_margin">20dp</dimen>
+    <dimen name="vumeter_progress_width">6dp</dimen>
+    <dimen name="vumeter_progress_dashed_width">4dp</dimen>
 </resources>
