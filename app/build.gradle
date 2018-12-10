@@ -63,4 +63,5 @@ dependencies {
     api 'com.google.guava:guava:26.0-android'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.9.0'
+    implementation 'com.airbnb.android:lottie:2.8.0'
 }
