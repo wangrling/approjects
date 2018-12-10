@@ -35,7 +35,8 @@ public class AppInfoFragment extends Fragment {
     private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
-
+        // 使用AIDL实现的播放器。
+        mAppInfos.add(new Pair<>("AIDLMusicPlayer", R.drawable.aidlmusic));
 
         //　加载大图片。
         mAppInfos.add(new Pair<>("DisplayBitmaps", R.drawable.displaybitmap));
