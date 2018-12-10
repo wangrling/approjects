@@ -23,8 +23,9 @@
     MusicService沟通的桥梁，QueueManager提供QueueItem数据。</p>
 
     <h3>MusicFX</h3>
-    <p>音效控制</p>
+    <p>音乐播放，音效控制</p>
     <p>通过Virtualizer (虚拟化), BassBoost (低音增强), Equalizer (均衡器),
     PresetRevert (回音)来调节音效，目前还需要传进来AudioSession才能生效。</p>
+    <p>从startService改成bindService.</p>
 </body>
 </html>

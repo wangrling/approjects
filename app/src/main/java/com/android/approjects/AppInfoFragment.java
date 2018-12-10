@@ -36,6 +36,7 @@ public class AppInfoFragment extends Fragment {
 
     static {
 
+
         //　加载大图片。
         mAppInfos.add(new Pair<>("DisplayBitmaps", R.drawable.displaybitmap));
 

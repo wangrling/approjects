@@ -75,12 +75,20 @@
     <string name="storage_setting_sdcard_item">SD card</string>
     <string name="storage_setting_local_item">Phone storage</string>
     <string name="save_dialog_title">Save recording?</string>
-    <string name="discard">Diacard</string>
+    <string name="discard">Discard</string>
     <string name="rename_dialog_save">Save</string>
     <string name="file_deleted">File has been deleted!</string>
     <string name="rename_dialog_info_null">File name can\\\'t be null.</string>
     <string name="rename_dialog_info_length_limit">Maximum character limit reached.</string>
     <string name="rename_dialog_info_exists">The name already exists.</string>
+
+    <!-- DeskClock -->
     <string name="deskclock">DeskClock</string>
+
+    <!-- AbUpdate -->
+    <string name="unknown">Unknown</string>
+    <string name="close">CLOSE</string>
+    <string name="switch_slot">Switch Slot</string>
+    <string name="finish_update_info">To finish the update press the button below</string>
 
 </resources>
