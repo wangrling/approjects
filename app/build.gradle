@@ -61,4 +61,11 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer:2.9.0'
     implementation 'com.airbnb.android:lottie:2.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    // Provides ArFragment, and other UX resources.
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.6.0'
+
+    // Alternatively, use ArSceneView without the UX dependency.
+    implementation 'com.google.ar.sceneform:core:1.6.0'
+
 }

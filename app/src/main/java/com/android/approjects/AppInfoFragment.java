@@ -35,6 +35,15 @@ public class AppInfoFragment extends Fragment {
     private static List<Pair<String, Integer>> mAppInfos = new ArrayList<>();
 
     static {
+
+        // github需要写的库
+        // gpuimage
+
+        // SFML
+
+        // 重点关注
+        // https://developers.google.com/ar/
+
         // 使用AIDL实现的播放器。
         mAppInfos.add(new Pair<>("AIDLMusicPlayer", R.drawable.aidlmusic));
 
