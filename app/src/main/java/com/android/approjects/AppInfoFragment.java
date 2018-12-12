@@ -19,6 +19,7 @@ import com.android.approjects.deskclock.DeskClock;
 import com.android.approjects.exoplayer.SampleChooserActivity;
 import com.android.approjects.grafika.GrafikaActivity;
 import com.android.approjects.musicfx.MusicFXActivity;
+import com.android.approjects.musicfx.RandomMusicActivity;
 import com.android.approjects.permissions.PermissionsActivity;
 import com.android.approjects.soundrecorder.SoundRecorder;
 import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
@@ -86,7 +87,7 @@ public class AppInfoFragment extends Fragment {
             GrafikaActivity.class,
             SampleChooserActivity.class,
             MusicPlayerActivity.class,
-            MusicFXActivity.class
+            RandomMusicActivity.class
     };
 
     @Nullable

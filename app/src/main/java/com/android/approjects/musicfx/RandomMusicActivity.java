@@ -8,11 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +34,8 @@ import androidx.annotation.Nullable;
 public class RandomMusicActivity extends Activity implements
         View.OnClickListener {
 
+    private static final String TAG = "RandomMusic";
+
     /**
      * The URL we suggest as default when adding by URL. This is just so that the user doesn't
      * have to find an URL to test this sample.
@@ -45,6 +49,10 @@ public class RandomMusicActivity extends Activity implements
     Button mRewindButton;
     Button mStopButton;
     Button mEjectButton;
+
+    MusicService mMusicService;
+
+    int mRandomMusicSession;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,10 +73,44 @@ public class RandomMusicActivity extends Activity implements
         mRewindButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
         mEjectButton.setOnClickListener(this);
+
+        mMusicServiceBound = false;
+
+        mRandomMusicSession = -1;
     }
+
+    private void bindMusicService() {
+        Intent intent = new Intent(this, MusicService.class);
+        Log.d(TAG, "bindService");
+        bindService(intent, mMusicServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbindMusicService() {
+        unbindService(mMusicServiceConnection);
+        mMusicServiceBound = false;
+    }
+
+    private boolean mMusicServiceBound;
+    private ServiceConnection mMusicServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.ServiceBinder mServiceBinder = (MusicService.ServiceBinder) service;
+            Log.d(TAG, "onServiceConnected getService");
+            mMusicService = mServiceBinder.getService();
+            mMusicServiceBound = true;
+            mMusicService.processPlayRequest();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mMusicServiceBound = false;
+        }
+    };
 
     @Override
     public void onClick(View v) {
+        /*
+        // 添加音效处理，修改程序为BindService模式
         // Send the correct intent to the MusicService, according to the button that was clicked.
         Intent intent = new Intent(this, MusicService.class);
 
@@ -90,7 +132,37 @@ public class RandomMusicActivity extends Activity implements
         } else if (v == mEjectButton) {
             showUrlDialog();
         }
-    }
+        */
+
+        if (v == mPlayButton) {
+            if (mMusicServiceBound == false) {
+                bindMusicService();
+            }
+            // bindMusicService是一个异步的过程，所以要等绑定完之后才能
+            if (mMusicService != null) {
+                mMusicService.processPlayRequest();
+            }
+        } else if (v == mPauseButton) {
+            mMusicService.processPauseRequest();
+        } else if (v == mSkipButton) {
+            mMusicService.processSkipRequest();
+        } else if (v == mRewindButton) {
+            mMusicService.processRewindRequest();
+        } else if (v == mStopButton) {
+            if (mMusicServiceBound) {
+                mMusicService.processStopRequest();
+                unbindMusicService();
+            }
+        } else if (v == mEjectButton) {
+            showUrlDialog();
+        }
+     }
+
+     void getRandomMusicSession() {
+        if (mMusicService != null) {
+            mRandomMusicSession = mMusicService.getRandomMusicSession();
+        }
+     }
 
     /**
      * Shows an alert dialog where the user can input a URL. After showing the dialog, if the user
@@ -115,7 +187,8 @@ public class RandomMusicActivity extends Activity implements
                 i.setAction(MusicService.ACTION_URL);
                 Uri uri = Uri.parse(input.getText().toString());
                 i.setData(uri);
-                startService(i);
+                // startService(i);
+                mMusicService.processAddRequest(i);
             }
         });
 
@@ -146,15 +219,29 @@ public class RandomMusicActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
+        /*
         Intent intent = new Intent(this, LocalService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        */
+        // bindMusicService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        /*
         unbindService(mConnection);
         mBound = false;
+        */
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mMusicServiceBound) {
+            mMusicService.processStopRequest();
+            unbindMusicService();
+        }
+        super.onBackPressed();
     }
 
     /** Called when a button is clicked (the button in the layout file attaches to
@@ -176,12 +263,12 @@ public class RandomMusicActivity extends Activity implements
             // We've bound to LocalService, cast the IBinder and gat LocalService instance
             LocalService.LocalBinder binder =  (LocalService.LocalBinder) service;
             mService = binder.getService();
-            mBound = true;
+            mMusicServiceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBound =false;
+            mMusicServiceBound =false;
         }
     };
 

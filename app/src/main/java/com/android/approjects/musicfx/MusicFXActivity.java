@@ -34,6 +34,9 @@ import java.util.Locale;
 
 import androidx.annotation.Nullable;
 
+// 将Activity改成fragment直接将播放和显示弄在一起。
+
+
 /**
  * 主要是使用Virtualizer (虚拟化), BassBoost (低音增强), Equalizer (均衡器), PresetRevert (回音)四种音效。
  *

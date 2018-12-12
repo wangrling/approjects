@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,6 +12,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 
 public class MusicService extends Service implements
         MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MusicFocusable, PrepareMusicRetrieverTask.PreparedListener {
+        MusicFocusable, MusicRetrieverTask.PreparedListener {
 
     // The tag we put on debug messages
     final static String TAG = "RandomMusicPlayer";
@@ -54,34 +54,12 @@ public class MusicService extends Service implements
     // If not available, this will be null. Always check for null before using!
     AudioFocusHelper mAudioFocusHelper = null;
 
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-
-    }
-
-    @Override
-    public void onGainedAudioFocus() {
-
-    }
-
-    @Override
-    public void onLostAudioFocus(boolean canDuck) {
-
-    }
-
-    @Override
-    public void onMusicRetrieverPrepared() {
-
+    public int getRandomMusicSession() {
+        if (mPlayer != null) {
+            return mPlayer.getAudioSessionId();
+        } else {
+            return -1;
+        }
     }
 
     // indicates the state our service:
@@ -150,7 +128,7 @@ public class MusicService extends Service implements
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "creating service");
+        Log.i(TAG, "creating MusicService");
 
         // Create the Wifi lock (this does not acquire the lock, this just creates it)
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
@@ -161,6 +139,8 @@ public class MusicService extends Service implements
 
         // Create the retriever and start an asynchronous task that will prepare it.
         mRetriever = new MusicRetriever(getContentResolver());
+        // 获取音乐
+        (new MusicRetrieverTask(mRetriever, this)).execute();
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
         if (android.os.Build.VERSION.SDK_INT >= 8)
@@ -175,6 +155,7 @@ public class MusicService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
+        Log.d(TAG, "onStartCommand action = " + action);
         if (action.equals(ACTION_TOGGLE_PLAYBACK))
             processTogglePlaybackRequest();
         else if (action.equals(ACTION_PLAY))
@@ -195,35 +176,40 @@ public class MusicService extends Service implements
         return START_NOT_STICKY;
     }
 
-    // 使用网址播放
-    private void processAddRequest(Intent intent) {
-
+    // 将private改成public状态。
+    public void processRewindRequest() {
+        if (mState == State.Playing || mState == State.Paused)
+            mPlayer.seekTo(0);
     }
 
-    private void processRewindRequest() {
-
-    }
-
-    private void processStopRequest() {
-
-    }
-
-    private void processSkipRequest() {
-
-    }
-
-    private void processPauseRequest() {
-
-    }
-
-    void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
-                && mAudioFocusHelper.requestFocus()) {
-            mAudioFocus = AudioFocus.Focused;
+    public void processSkipRequest() {
+        if (mState == State.Playing || mState == State.Paused) {
+            tryToGetAudioFocus();
+            playNextSong(null);
         }
     }
 
-    private void processPlayRequest() {
+    // 暂停
+    public void processPauseRequest() {
+        if (mState == State.Retrieving) {
+            // If we are still retrieving media, clear the flag that indicates we should start
+            // playing when we're ready
+            mStartPlayingAfterRetrieve = false;
+            return ;
+        }
+
+        if (mState == State.Playing) {
+            // Pause media player and cancel the 'foreground service' state.
+            mState = State.Paused;
+            mPlayer.pause();
+            // While paused, we always retain the MediaPlayer
+            // do not give up audio focus
+            relaxResources(false);
+        }
+    }
+
+    public void processPlayRequest() {
+        Log.d(TAG, "processPlayRequest state = " + mState);
         if (mState == State.Retrieving) {
             // If we are still retrieving media, just set the flag to start playing when we're
             // ready.
@@ -247,6 +233,83 @@ public class MusicService extends Service implements
     }
 
     /**
+     * Makes sure the media player exist and has been reset. This will create the media player
+     * if needed, or reset the existing media player if one already exists.
+     */
+    // 需要创建MediaPlayer实例
+    private void createMediaPlayerIfNeeded() {
+        if (mPlayer == null) {
+            mPlayer = new MediaPlayer();
+
+            // Make sure the media player will acquire a wake-lock while playing. If we don't do
+            // that, the CPU might go to sleep while the song is playing, causing playback to stop.
+            //
+            // Remember that to use this, we have to declare the android.permission.WAKE_LOCK
+            // permission in AndroidManifest.xml.
+
+            // we want the media player to notify us when it's ready preparing, and when it's done
+            // playing:
+            mPlayer.setOnPreparedListener(this);
+            mPlayer.setOnCompletionListener(this);
+            mPlayer.setOnErrorListener(this);
+        } else {
+            mPlayer.reset();
+        }
+    }
+
+    // 相当于耳机的开关键
+    public void processTogglePlaybackRequest() {
+        if (mState == State.Paused || mState == State.Stopped) {
+            processPlayRequest();
+        } else {
+            processPauseRequest();
+        }
+    }
+
+    public void processStopRequest() {
+        Log.d(TAG, "processStopRequest");
+        processStopRequest(false);
+    }
+
+    private void processStopRequest(boolean force) {
+        Log.d(TAG, "processStopRequest mState = " + mState);
+        if (mState == State.Playing || mState == State.Paused || force) {
+            mState = State.Stopped;
+
+            // Lets go of all resources...
+            relaxResources(true);
+            giveUpAudioFocus();
+
+            // service is no longer necessary. Will be started again if needed.
+            stopSelf();
+        }
+    }
+
+    private void relaxResources(boolean releasePlayer) {
+        // Stop being a foreground service
+        stopForeground(true);
+
+        Log.d(TAG, "releaseResources");
+
+        // Stop and release the Media Player, if it's available
+        if (releasePlayer && mPlayer != null) {
+            mPlayer.reset();
+            mPlayer.release();
+            mPlayer = null;
+        }
+
+        // We can also release the Wifi lock, if we're holding it
+        if (mWifiLock.isHeld())
+            mWifiLock.release();
+    }
+
+    void giveUpAudioFocus() {
+        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null) {
+            mAudioFocus = AudioFocus.NoFocusNoDuck;
+        }
+    }
+
+    /**
      * Reconfigures MediaPlayer according to audio focus settings and starts/restarts it. This
      * method starts/restarts the MediaPlayer respecting the current audio focus state. So if
      * we have focus, it will play normally; if we don't have focus, it will either leave the
@@ -255,6 +318,7 @@ public class MusicService extends Service implements
      * you have to do so from a context where you are sure this is the case.
      */
     private void configAndStartMediaPlayer() {
+        Log.d(TAG, "configAndStartMediaPlayer mAudioFocus = " + mAudioFocus);
         if (mAudioFocus == AudioFocus.NoFocusNoDuck) {
             // If we don't have audio focus and can't duck, we have to pause, even if mState
             // is State.Playing. But we stay in the Playing state so that we known we have to
@@ -269,6 +333,120 @@ public class MusicService extends Service implements
 
         if (!mPlayer.isPlaying())
             mPlayer.start();
+    }
+
+    // 使用网址播放
+    public void processAddRequest(Intent intent) {
+        // user wants to play a song directly by URL or path. The URL or path comes in the "data"
+        // part of the Intent. This Intent is sent by {@link MainActivity} after the user
+        // specifies the URL/path via an alert box.
+        if (mState == State.Retrieving) {
+            // We'll play the requested URL right after we finish retrieving.
+            mWhatToPlayAfterRetrieve = intent.getData();
+            mStartPlayingAfterRetrieve = true;
+        } else if (mState == State.Playing || mState == State.Paused || mState == State.Stopped) {
+            Log.i(TAG, "Playing from URL/path: " + intent.getData().toString());
+            tryToGetAudioFocus();
+            playNextSong(intent.getData().toString());
+        }
+    }
+
+    void tryToGetAudioFocus() {
+        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
+                && mAudioFocusHelper.requestFocus()) {
+            mAudioFocus = AudioFocus.Focused;
+        }
+    }
+
+    /**
+     * Starts playing the next song. If manualUrl is null, the next song will be randomly selected
+     * from our Media Retriever (that is, it will be a random song in the user's device). If
+     * manualUrl is non-null, then it specifies the URL or path to the song that will be played
+     * next.
+     */
+    void playNextSong(String manualUrl) {
+        mState = State.Stopped;
+        relaxResources(false);      // release everything except MediaPlayer.
+
+        try {
+            MusicRetriever.Item playingItem = null;
+            if (manualUrl != null) {
+                // set the source of the media player to the manual URL or path.
+                createMediaPlayerIfNeeded();
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mPlayer.setDataSource(manualUrl);
+                mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
+
+                playingItem = new MusicRetriever.Item(0, null, manualUrl, null, 0);
+            } else {
+                mIsStreaming = false;       // playing a locally available song.
+                playingItem = mRetriever.getRandomItem();
+                Log.d(TAG, "playingItem title " + playingItem.getTitle());
+                if (playingItem == null) {
+                    Toast.makeText(this,
+                            "No available music to play. Place some music on your external storage "
+                                    + "device (e.g. your SD card) and try again.",
+                            Toast.LENGTH_LONG).show();
+                    processStopRequest(true); // stop everything!
+                    return;
+                }
+
+                // set the source of media player a content URI.
+                createMediaPlayerIfNeeded();
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mPlayer.setDataSource(getApplicationContext(), playingItem.getURI());
+            }
+
+            mSongTitle = playingItem.getTitle();
+            mState = State.Preparing;
+
+            setUpAsForeground(mSongTitle + " (loading)");
+
+            // Starts preparing the media player in the background. When it's done, it will call
+            // out OnPreparedListener (this is, the onPrepared() method on this class, since we
+            // set the listener to 'this').
+            //
+            // Until the media player is prepared, we *cannot* call start() on it!
+            mPlayer.prepareAsync();
+
+            // If we are streaming from the internet, we want to hold a wifi lock, which prevents
+            // the Wifi radio from going to sleep while the song is playing. If, on the other hand,
+            // we are *not* streaming, we want to release the lock if we were holding it before.
+            if (mIsStreaming)
+                mWifiLock.acquire();
+            else if (mWifiLock.isHeld()) mWifiLock.release();
+
+        } catch (IOException ex) {
+            Log.e("MusicService", "IOException playing next song: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    /** Called when media player is done playing current song. */
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        // The media player finished playing the current song, so we go ahead and start the next.
+        playNextSong(null);
+    }
+
+    /** Called when media player is done preparing. */
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        // The media player is done preparing. That means we can start playing!
+        Log.d(TAG, "MediaPlayer onPrepared");
+        mState = State.Playing;
+        updateNotification(mSongTitle + " (playing)");
+        configAndStartMediaPlayer();
+    }
+
+    void updateNotification(String text) {
+        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+                new Intent(getApplicationContext(), RandomMusicActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        mNotificationBuilder.setContentText(text)
+                .setContentIntent(pi);
+
+        mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
     /**
@@ -294,70 +472,77 @@ public class MusicService extends Service implements
         startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
-    /**
-     * Starts playing the next song. If manualUrl is null, the next song will be randomly selected
-     * from our Media Retriever (that is, it will be a random song in the user's device). If
-     * manualUrl is non-null, then it specifies the URL or path to the song that will be played
-     * next.
-     */
-    void playNextSong(String manualUrl) {
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        Toast.makeText(getApplicationContext(), "Media player error! Resetting.",
+                Toast.LENGTH_SHORT).show();
+
+        Log.e(TAG, "Error: what = " + String.valueOf(what) + ", extra = " + String.valueOf(extra));
+
         mState = State.Stopped;
-        relaxResources(false);      // release everything except MediaPlayer.
+        relaxResources(true);
+        giveUpAudioFocus();
 
-        try {
-            MusicRetriever.Item playingItem = null;
-            if (manualUrl != null) {
-                // set the source of the media player to the manual URL or path.
-                createMediaPlayerIfNeeded();
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.setDataSource(manualUrl);
-                mIsStreaming = manualUrl.startsWith("http:") || manualUrl.startsWith("https:");
-                playingItem = new MusicRetriever.Item(0, null, manualUrl, null, 0);
-            } else {
-                mIsStreaming = false;       // playing a locally available song.
-                playingItem = mRetriever.getRandomItem();
-                if (playingItem == null) {
-                    Toast.makeText(this,
-                            "No available music to play. Place some music on your external storage "
-                                    + "device (e.g. your SD card) and try again.",
-                            Toast.LENGTH_LONG).show();
-                    processStopRequest(true); // stop everything!
-                    return;
-                }
+        return true;    // true indicates we handled the error.
+    }
 
-                // set the source of media player a content URI.
-                createMediaPlayerIfNeeded();
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mPlayer.setDataSource(getApplicationContext(), playingItem.getURI());
-            }
+    @Override
+    public void onGainedAudioFocus() {
+        Toast.makeText(getApplicationContext(), "gained audio focus.", Toast.LENGTH_SHORT).show();
+        mAudioFocus = AudioFocus.Focused;
 
-            mSongTitle = playingItem.getTitle();
-            mState = State.Preparing;
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        // restarted media player with new focus settings.
+        if (mState == State.Playing) {
+            configAndStartMediaPlayer();
         }
     }
 
-    private void processStopRequest(boolean b) {
+    @Override
+    public void onLostAudioFocus(boolean canDuck) {
+        Toast.makeText(getApplicationContext(), "lost audio focus." + (canDuck ? "can duck"
+                : "no duck"), Toast.LENGTH_SHORT).show();
+        mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
 
+        // start/restart/pause media player with new focus settings
+        if (mPlayer != null && mPlayer.isPlaying()) {
+            configAndStartMediaPlayer();
+        }
     }
 
-    private void createMediaPlayerIfNeeded() {
-
+    @Override
+    public void onMusicRetrieverPrepared() {
+        Log.d(TAG, "onMusicRetrieverPrepared mStartPlayingAfterRetrieve = " +
+                mStartPlayingAfterRetrieve);
+        // Done retrieving!
+        mState = State.Stopped;
+        // If the flag indicates we should starting playing after retrieving, let's do that now.
+        if (mStartPlayingAfterRetrieve) {
+            tryToGetAudioFocus();
+            playNextSong(mWhatToPlayAfterRetrieve == null ?
+                    null : mWhatToPlayAfterRetrieve.toString());
+        }
     }
 
-    private void relaxResources(boolean b) {
-
+    @Override
+    public void onDestroy() {
+        // Service is being killed, so make sure we release our resources
+        Log.d(TAG, "onDestroy");
+        // mState = State.Stopped;
+        // relaxResources(true);
+        // giveUpAudioFocus();
     }
 
-    private void processTogglePlaybackRequest() {
-
+    public class ServiceBinder extends Binder {
+        MusicService getService() {
+            return MusicService.this;
+        }
     }
+
+    private final IBinder mBinder = new ServiceBinder();
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 }
