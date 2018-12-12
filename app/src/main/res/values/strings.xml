@@ -90,5 +90,7 @@
     <string name="close">CLOSE</string>
     <string name="switch_slot">Switch Slot</string>
     <string name="finish_update_info">To finish the update press the button below</string>
+    <string name="contacts_string"><![CDATA[Total number of contacts: %1$,d, First contact:%2$s]]></string>
+    <string name="contacts_empty">Contacts not loaded.</string>
 
 </resources>

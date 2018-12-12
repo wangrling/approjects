@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 
 import com.android.approjects.R;
@@ -14,6 +15,8 @@ import com.android.approjects.permissions.logger.LogFilter;
 import com.android.approjects.permissions.logger.LogFragment;
 import com.android.approjects.permissions.logger.LogWrapper;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.security.Permissions;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -37,6 +40,12 @@ public class PermissionsActivity extends Activity implements
      * Root of the layout of this Activity.
      */
     private View mLayout;
+
+    /**
+     * Permissions required to read and write contacts. Used by the {@link ContactsFragment}.
+     */
+    private static String[] PERMISSIONS_CONTACT = {Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS};
 
 
     /**
@@ -112,7 +121,68 @@ public class PermissionsActivity extends Activity implements
      * Callback is defined in resource layout definition.
      */
     public void showContacts(View v) {
+        Log.i(TAG, "Show contacts button pressed. Checking permissions.");
 
+        // Verify that all required contact permissions have been granted.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Contacts permissions have not been granted.
+            Log.i(TAG, "Contact permissions has NOT been granted. Requesting permissions.");
+            requestContactsPermissions();
+
+        } else {
+
+            // Contact permissions have been granted. Show the contacts fragment.
+            Log.i(TAG,
+                    "Contact permissions have already been granted. Displaying contact details.");
+            showContactDetails();
+        }
+    }
+
+    private void requestContactsPermissions() {
+        // BEGIN_INCLUDE(contacts_permission_request)
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_CONTACTS)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_CONTACTS)) {
+
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example, if the request has been denied previously.
+            Log.i(TAG,
+                    "Displaying contacts permission rationale to provide additional context.");
+
+            // Display a SnackBar with an explanation and a button to trigger the request.
+            Snackbar.make(mLayout, R.string.permission_contacts_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat
+                                    .requestPermissions(PermissionsActivity.this, PERMISSIONS_CONTACT,
+                                            REQUEST_CONTACTS);
+                        }
+                    })
+                    .show();
+        } else {
+            // Contact permissions have not been granted yet. Request them directly.
+            ActivityCompat.requestPermissions(this, PERMISSIONS_CONTACT, REQUEST_CONTACTS);
+        }
+        // END_INCLUDE(contacts_permission_request)
+    }
+
+    /**
+     * Display the {@link ContactsFragment} in the content area if the required contacts
+     * permissions
+     * have been granted.
+     */
+    private void showContactDetails() {
+        getFragmentManager().beginTransaction()
+                .replace(R.id.permissions_content_fragment, ContactsFragment.newInstance())
+                .addToBackStack("contacts")
+                .commit();
     }
 
     @Override

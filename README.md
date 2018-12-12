@@ -3,7 +3,9 @@
     <p>录音机应用，继承MediaRecorder类，底层系统已经封装好AMR, 3GPP, AAC, WAV格式。</p>
     <hr>
     <h3>RuntimePermissions</h3>
+    <p>写完ContactsFragment部分，访问Contacts数据库。</p>
     <p>权限配置，引入Camera, Contacts模块。</p>
+    <p>引入CameraView框架进行显示。</p>
     <hr>
     <h3>Grafika</h3>
     <p>和MediaCodec相关，详细学习编解码。</p>
@@ -21,10 +23,10 @@
     MusicService沟通的桥梁，QueueManager提供QueueItem数据。</p>
     <hr>
     <h3>MusicFX</h3>
-    <p>音乐播放，音效控制</p>
+    <p>音乐播放，音效控制。</p>
     <p>通过Virtualizer (虚拟化), BassBoost (低音增强), Equalizer (均衡器),
     PresetRevert (回音)来调节音效，目前还需要传进来AudioSession才能生效。</p>
-    <p>从startService改成bindService.</p>
+    <p>从startService服务改成bindService服务。</p>
     <p>目前已经修改完成，play, pause, rewind, skip, stop, uri六个按钮的功能都正常，但是不大好后台播放。
     目前是按home键后台播放，如果按back键则是退出播放，用户按back键的意图不好推测。</p>
     <p>重新修改架构，将播放控制和音乐列表放在一个fragment，将MediaEffect放在另外一个fragment。
