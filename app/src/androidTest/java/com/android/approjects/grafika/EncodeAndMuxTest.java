@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
  */
 public class EncodeAndMuxTest {
     private static final String TAG = "EncodeAndMuxTest";
-    private static final boolean VERBOSE = false;           // lots of logging
+    private static final boolean VERBOSE = true;           // lots of logging
 
     // where to put the output file (note: /sdcard requires WRITE_EXTERNAL_STORAGE permission)
     private static final File OUTPUT_DIR = Environment.getExternalStorageDirectory();
@@ -89,6 +89,7 @@ public class EncodeAndMuxTest {
 
                 // Generate a new frame of input.
                 generateSurfaceFrame(i);
+                // 显示的时间依次递增，计算结果(1 + 2 + 3 + 4 + 5 + 6 + 7) / 8 < 2秒钟。
                 mInputSurface.setPresentationTime(computePresentationTimeNsec(i));
 
                 // Submit it to the encoder.  The eglSwapBuffers call will block if the input
@@ -97,6 +98,7 @@ public class EncodeAndMuxTest {
                 // the encoder before supplying additional input, the system guarantees that we
                 // can supply another frame without blocking.
                 if (VERBOSE) Log.d(TAG, "sending frame " + i + " to encoder");
+                // 把数据放入到Surface中，然后drainEncoder就会拿数据。
                 mInputSurface.swapBuffers();
             }
 
@@ -122,10 +124,14 @@ public class EncodeAndMuxTest {
 
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
+        // indicates that the data will be a GraphicBuffer metadata reference
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        // 1秒钟传输20000bits
         format.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate);
+        // 1秒钟15帧
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+        // A key describing the frequency of key frames expressed in seconds between key frames.
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
         if (VERBOSE) Log.d(TAG, "format: " + format);
 
@@ -137,16 +143,22 @@ public class EncodeAndMuxTest {
         // "display" EGL context is created, then modify the eglCreateContext call to
         // take eglGetCurrentContext() as the share_context argument.
         try {
+            // H.264编码器
             mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // 配置编码器的格式
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        // 创建输入的界面
+        // Requests a Surface to use as the input to an encoder, in place of input buffers.
+        // 都是MediaCodec定义好的内容，调用自行创建的opengl相关内容。
         mInputSurface = new CodecInputSurface(mEncoder.createInputSurface());
         mEncoder.start();
 
         // Output filename.  Ideally this would use Context.getFilesDir() rather than a
         // hard-coded output directory.
+        // /storage/emulated/0/test.320x240.mp4
         String outputPath = new File(OUTPUT_DIR,
                 "test." + mWidth + "x" + mHeight + ".mp4").toString();
         Log.d(TAG, "output file is " + outputPath);
@@ -158,6 +170,7 @@ public class EncodeAndMuxTest {
         //
         // We're not actually interested in multiplexing audio.  We just want to convert
         // the raw H.264 elementary stream we get from MediaCodec into a .mp4 file.
+        // 只有获取到数据之后才能判断格式输出。
         try {
             mMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException ioe) {
@@ -196,6 +209,7 @@ public class EncodeAndMuxTest {
      * is set, we send EOS to the encoder, and then iterate until we see EOS on the output.
      * Calling this with endOfStream set should be done once, right before stopping the muxer.
      */
+    // 把数据写入到文件中。
     private void drainEncoder(boolean endOfStream) {
         final int TIMEOUT_USEC = 10000;
         if (VERBOSE) Log.d(TAG, "drainEncoder(" + endOfStream + ")");
@@ -207,6 +221,7 @@ public class EncodeAndMuxTest {
 
         ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();
         while (true) {
+            // 把encode的数据拿出来
             int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
@@ -220,6 +235,7 @@ public class EncodeAndMuxTest {
                 encoderOutputBuffers = mEncoder.getOutputBuffers();
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 // should happen before receiving buffers, and should only happen once
+                // The output format has changed, subsequent data will follow the new format.
                 if (mMuxerStarted) {
                     throw new RuntimeException("format changed twice");
                 }
@@ -228,6 +244,7 @@ public class EncodeAndMuxTest {
 
                 // now that we have the Magic Goodies, start the muxer
                 mTrackIndex = mMuxer.addTrack(newFormat);
+                Log.d(TAG, "addTrack mTrackIndex: " + mTrackIndex);
                 mMuxer.start();
                 mMuxerStarted = true;
             } else if (encoderStatus < 0) {
@@ -235,6 +252,7 @@ public class EncodeAndMuxTest {
                         encoderStatus);
                 // let's ignore it
             } else {
+                // 获取到的数据，返回值是数据大小。
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null) {
                     throw new RuntimeException("encoderOutputBuffer " + encoderStatus +
@@ -257,8 +275,21 @@ public class EncodeAndMuxTest {
                     encodedData.position(mBufferInfo.offset);
                     encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
 
+                    // 写入数据存储在文件中。
+                    // encodedData是ByteBuffer类型。
+                    // mTrackIndex == 0，不会递增。
                     mMuxer.writeSampleData(mTrackIndex, encodedData, mBufferInfo);
                     if (VERBOSE) Log.d(TAG, "sent " + mBufferInfo.size + " bytes to muxer");
+
+                    /**
+                     * 1s钟15帧，正好30帧。
+                     * 12-13 11:37:13.381 27224 27243 D EncodeAndMuxTest: sending frame 29 to encoder
+                     * 12-13 11:37:13.383 27224 27243 D EncodeAndMuxTest: drainEncoder(true)
+                     * 12-13 11:37:13.383 27224 27243 D EncodeAndMuxTest: sending EOS to encoder
+                     * 12-13 11:37:13.391 27224 27243 D EncodeAndMuxTest: sent 152 bytes to muxer
+                     * 12-13 11:37:13.392 27224 27243 D EncodeAndMuxTest: end of stream reached
+                     * 12-13 11:37:13.393 27224 27243 D EncodeAndMuxTest: releasing encoder objects
+                     */
                 }
 
                 mEncoder.releaseOutputBuffer(encoderStatus, false);
@@ -284,6 +315,7 @@ public class EncodeAndMuxTest {
      * </pre>
      * We draw one of the eight rectangles and leave the rest set to the clear color.
      */
+    // 绘制矩形
     private void generateSurfaceFrame(int frameIndex) {
         frameIndex %= 8;
 
@@ -343,12 +375,14 @@ public class EncodeAndMuxTest {
             }
             mSurface = surface;
 
+            // 创建的过程
             eglSetup();
         }
 
         /**
          * Prepares EGL.  We want a GLES 2.0 context and a surface that supports recording.
          */
+        // 通过display最终创建surface.
         private void eglSetup() {
             mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
             if (mEGLDisplay == EGL14.EGL_NO_DISPLAY) {
