@@ -9,7 +9,7 @@
     <hr>
     <h3>Grafika</h3>
     <p>和MediaCodec相关，详细学习编解码。</p>
-
+    <p>写MediaCodec的测试类，OpenGL绘制视频，encoder进行编码，MediaMuxer保存为mp4格式。</p>
     <hr>
     <h3>ExoPlayer</h3>
     <p>音视频播放框架，容易拓展。</p>

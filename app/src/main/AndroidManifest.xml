@@ -60,6 +60,7 @@
         <activity android:name=".permissions.PermissionsActivity" />
 
         <activity android:name=".grafika.GrafikaActivity" />
+        <activity android:name=".grafika.activity.PlayMovieActivity" />
 
         <activity android:name=".exoplayer.SampleChooserActivity"
             android:label="@string/exo">
