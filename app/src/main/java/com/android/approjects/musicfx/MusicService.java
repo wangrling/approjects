@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -49,6 +50,8 @@ public class MusicService extends Service implements
 
     // our media player
     MediaPlayer mPlayer = null;
+
+    Cursor mCursor;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
@@ -139,6 +142,7 @@ public class MusicService extends Service implements
 
         // Create the retriever and start an asynchronous task that will prepare it.
         mRetriever = new MusicRetriever(getContentResolver());
+
         // 获取音乐
         (new MusicRetrieverTask(mRetriever, this)).execute();
 
@@ -509,10 +513,16 @@ public class MusicService extends Service implements
         }
     }
 
+
     @Override
-    public void onMusicRetrieverPrepared() {
+    public void onMusicRetrieverPrepared(Cursor cursor) {
         Log.d(TAG, "onMusicRetrieverPrepared mStartPlayingAfterRetrieve = " +
                 mStartPlayingAfterRetrieve);
+        mCursor = cursor;
+
+        if (cursor != null) {
+            Log.d(TAG, "MusicService cursor != null");
+        }
         // Done retrieving!
         mState = State.Stopped;
         // If the flag indicates we should starting playing after retrieving, let's do that now.
@@ -521,6 +531,10 @@ public class MusicService extends Service implements
             playNextSong(mWhatToPlayAfterRetrieve == null ?
                     null : mWhatToPlayAfterRetrieve.toString());
         }
+    }
+
+    public Cursor getMusicCursor() {
+        return mCursor;
     }
 
     @Override

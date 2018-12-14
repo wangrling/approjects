@@ -262,6 +262,7 @@ public class MusicFXActivity extends Activity implements SeekBar.OnSeekBarChange
         // 已经布置好所有的调节界面。
         setContentView(R.layout.activity_fx_music);
 
+        setActionBar(findViewById(R.id.toolbar));
         // 音效的控制面板
         final ViewGroup viewGroup = findViewById(R.id.content_sound_effects);
 

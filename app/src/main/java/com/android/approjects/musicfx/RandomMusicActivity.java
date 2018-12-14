@@ -7,18 +7,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.media.audiofx.AudioEffect;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.android.approjects.R;
@@ -29,7 +36,7 @@ import androidx.annotation.Nullable;
  * Main activity: shows media player buttons. This activity shows the media player buttons and
  * lets the user click them. No media handling is done here -- everything is done by passing
  * Intents to our {@link MusicService}.
- * */
+ */
 
 public class RandomMusicActivity extends Activity implements
         View.OnClickListener {
@@ -54,6 +61,9 @@ public class RandomMusicActivity extends Activity implements
 
     int mRandomMusicSession;
 
+    ListView mMusicListView;
+    Cursor mMusicCursor;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,9 +84,13 @@ public class RandomMusicActivity extends Activity implements
         mStopButton.setOnClickListener(this);
         mEjectButton.setOnClickListener(this);
 
+        mMusicListView = findViewById(R.id.music_list_view);
+
         mMusicServiceBound = false;
 
         mRandomMusicSession = -1;
+
+        // bindMusicService();
     }
 
     private void bindMusicService() {
@@ -99,6 +113,8 @@ public class RandomMusicActivity extends Activity implements
             mMusicService = mServiceBinder.getService();
             mMusicServiceBound = true;
             mMusicService.processPlayRequest();
+
+
         }
 
         @Override
@@ -156,13 +172,15 @@ public class RandomMusicActivity extends Activity implements
         } else if (v == mEjectButton) {
             showUrlDialog();
         }
-     }
+    }
 
-     void getRandomMusicSession() {
+    public int getRandomMusicSession() {
         if (mMusicService != null) {
             mRandomMusicSession = mMusicService.getRandomMusicSession();
         }
-     }
+
+        return mRandomMusicSession;
+    }
 
     /**
      * Shows an alert dialog where the user can input a URL. After showing the dialog, if the user
@@ -193,7 +211,8 @@ public class RandomMusicActivity extends Activity implements
         });
 
         alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dlg, int whichButton) {}
+            public void onClick(DialogInterface dlg, int whichButton) {
+            }
         });
 
         alertBuilder.show();
@@ -224,6 +243,7 @@ public class RandomMusicActivity extends Activity implements
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         */
         // bindMusicService();
+
     }
 
     @Override
@@ -244,8 +264,10 @@ public class RandomMusicActivity extends Activity implements
         super.onBackPressed();
     }
 
-    /** Called when a button is clicked (the button in the layout file attaches to
-     * this method with the android:onClick attribute) */
+    /**
+     * Called when a button is clicked (the button in the layout file attaches to
+     * this method with the android:onClick attribute)
+     */
     public void onButtonClick(View v) {
         if (mBound) {
             // Call a method from the LocalService.
@@ -256,24 +278,28 @@ public class RandomMusicActivity extends Activity implements
         }
     }
 
-    /** Define callbacks for service binding, passed to bindService() */
+    /**
+     * Define callbacks for service binding, passed to bindService()
+     */
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and gat LocalService instance
-            LocalService.LocalBinder binder =  (LocalService.LocalBinder) service;
+            LocalService.LocalBinder binder = (LocalService.LocalBinder) service;
             mService = binder.getService();
             mMusicServiceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mMusicServiceBound =false;
+            mMusicServiceBound = false;
         }
     };
 
     // Messenger service
-    /** Messenger for communication with the service. */
+    /**
+     * Messenger for communication with the service.
+     */
     Messenger mMessengerService = null;
 
     /**
@@ -314,4 +340,33 @@ public class RandomMusicActivity extends Activity implements
         }
     }
 
+    public void showMusicList(View view) {
+        if (mMusicService != null) {
+            mMusicCursor = mMusicService.getMusicCursor();
+            if (mMusicCursor != null) {
+                mMusicCursor.moveToFirst();
+            }
+            mMusicListView.setAdapter(new SimpleCursorAdapter(this,
+                    android.R.layout.simple_list_item_1, mMusicCursor,
+                    new String[]{MediaStore.Audio.Media.TITLE},
+                    new int[]{android.R.id.text1}, 0));
+        }
+    }
+
+    public void exitActivity(View view) {
+        finish();
+    }
+
+    public void enterMediaEffect(View view) {
+        int session = getRandomMusicSession();
+
+        if (session < 0) {
+            return;
+        }
+
+        Intent intent = new Intent(this, MusicFXActivity.class);
+        intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, session);
+        startActivityForResult(intent, session);
+
+    }
 }

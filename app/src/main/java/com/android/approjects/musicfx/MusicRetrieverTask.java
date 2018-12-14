@@ -1,5 +1,6 @@
 package com.android.approjects.musicfx;
 
+import android.database.Cursor;
 import android.os.AsyncTask;
 
 public class MusicRetrieverTask extends AsyncTask<Void, Void, Void> {
@@ -11,6 +12,8 @@ public class MusicRetrieverTask extends AsyncTask<Void, Void, Void> {
     MusicRetriever mRetriever;
     PreparedListener mListener;
 
+    Cursor mCursor;
+
     public MusicRetrieverTask(MusicRetriever retriever, PreparedListener listener) {
         mRetriever = retriever;
         mListener = listener;
@@ -18,17 +21,17 @@ public class MusicRetrieverTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        mRetriever.prepare();
+        mCursor = mRetriever.prepare();
         return null;
     }
 
     // 加载完成之后需要回调
     @Override
     protected void onPostExecute(Void aVoid) {
-        mListener.onMusicRetrieverPrepared();
+        mListener.onMusicRetrieverPrepared(mCursor);
     }
 
     public interface PreparedListener {
-        public void onMusicRetrieverPrepared();
+        public void onMusicRetrieverPrepared(Cursor cursor);
     }
 }

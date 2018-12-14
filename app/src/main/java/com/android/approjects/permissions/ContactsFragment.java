@@ -130,14 +130,17 @@ public class ContactsFragment extends Fragment implements LoaderManager.LoaderCa
         // First, set up a new raw contact.
         ContentProviderOperation.Builder op =
                 ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null);
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null);
         operations.add(op.build());
 
-        // Next, set hte name for the contact.
+        // Next, set the name for the contact.
         op = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                 .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, DUMMY_CONTACT_NAME);
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                        DUMMY_CONTACT_NAME);
         operations.add(op.build());
 
         // Apply the operations.

@@ -188,7 +188,7 @@ public class ControlPanelEffect {
 
     public static void setParameterInt(final Context context, final String packageName,
                                        final int audioSession, final Key key, final int arg) {
-
+        setParameterInt(context, packageName, audioSession, key, arg, DUMMY_ARGUMENT);
     }
 
     public static void setParameterInt(final Context context, final String packageName,
@@ -196,12 +196,25 @@ public class ControlPanelEffect {
 
     }
 
+    /**
+     *  Gets int parameter given key
+     * @param context
+     * @param packageName
+     * @param audioSession
+     * @param key
+     * @return
+     */
     public static int getParameterInt(final Context  context, final String packageName,
                                       final int audioSession, final String key) {
 
         int value = 0;
-
-
+        try {
+            final SharedPreferences prefs = context.getSharedPreferences(packageName,
+                    Context.MODE_PRIVATE);
+            value = prefs.getInt(key, value);
+        } catch (final RuntimeException e) {
+            Log.e(TAG, "getParameterInt: " + key + "; " + e);
+        }
         return value;
     }
 
@@ -227,8 +240,36 @@ public class ControlPanelEffect {
         final SharedPreferences prefs = context.getSharedPreferences(packageName, Context.MODE_PRIVATE);
 
         int[] intArray = null;
-
-
+        try {
+            // Get effect parameters.
+            switch (key) {
+                case eq_level_range: {
+                    intArray = new int[2];
+                    break;
+                }
+                case eq_center_freq:
+                    // Fall through
+                case eq_band_level:
+                    // Fall through
+                case eq_preset_user_band_level:
+                    // Fall through
+                case eq_preset_user_band_level_default:
+                    // Fall through
+                case eq_preset_ci_extreme_band_level: {
+                    final int numBands = prefs.getInt(Key.eq_num_bands.toString(), 0);
+                    intArray = new int[numBands];
+                    break;
+                }
+                default:
+                    Log.e(TAG, "getParameterIntArray: Unknown/unsupported key " + key);
+                    return null;
+            }
+            for (int i = 0; i < intArray.length; i++) {
+                intArray[i] = prefs.getInt(key.toString() + i, 0);
+            }
+        }catch (final RuntimeException e) {
+            Log.e(TAG, "getParameterIntArray: " + key + "; " + e);
+        }
         return intArray;
     }
 
