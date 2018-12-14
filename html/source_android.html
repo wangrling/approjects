@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="container-fluid">
+    <h3>GRAPHICS</h3>
+    <figure class="figure">
+        <img src="img/ape_fwk_graphics.png" class="figure-img img-fluid rounded" alt="ape_fwk_graphics">
+        <figcaption class="figure-caption">GRAPHICS框架图</figcaption>
+    </figure>
+    <p>生产者消费者模型, OpenGL既可以充当生产者，也可以是消费者。</p>
+    <figure class="figure">
+        <img src="img/graphics_pipeline.png" class="figure-img img-fluid rounded" alt="graphics_pipeline">
+        <figcaption class="figure-caption">底层数据流</figcaption>
+    </figure>
+
+    <p><code>android.graphics.Canvas</code> is a 2D graphics API and operations draw all the stock
+    and custom <code>android.view.View</code>s in Android.</p>
+    <p>In addition to Canvas, the other main way that developers render graphics is by using
+    OpenGL ES to directly render to a surface.</p>
+    <figure class="figure">
+        <img src="img/bufferqueue.png" class="figure-img img-fluid rounded" alt="bufferqueue">
+        <figcaption class="figure-caption">BufferQueue传递过程</figcaption>
+    </figure>
+    <p>需要理解Surface, SurfaceHolder, EGLSurface, SurfaceView, GlSurfaceView, SurfaceTexture,
+    TextureView, SurfaceFlinger, and Vulkan的含义。</p>
+    <div>BufferQueue producers and consumers</div>
+    <p>Basic usage is straightforward: The producer requests a free buffer (dequeueBuffer()),
+        specifying a set of characteristics including width, height, pixel format, and usage flags.
+        The producer populates the buffer and returns it to the queue (queueBuffer()).
+        Later, the consumer acquires the buffer (acquireBuffer()) and makes use of the buffer
+        contents. When the consumer is done, it returns the buffer to the queue (releaseBuffer()).</p>
+    <hr>
+    <h3>MEDIA</h3>
+    <figure class="figure">
+        <img src="img/ape_fwk_media.png" class="figure-img img-fluid rounded" alt="ape_fwk_media">
+        <figcaption class="figure-caption">MEDIA框架图</figcaption>
+    </figure>
+    <p>包好Stagefright框架，作用是集合第三方的编解码库，必须遵守OpenMax IL协议。</p>
+    <p>支持版权保护MediaDrm和数据加密MediaCrypto功能。</p>
+    <hr>
+    <h3>AUDIO</h3>
+    <figure class="figure">
+        <img src="img/ape_fwk_audio.png" class="figure-img img-fluid rounded" alt="ape_fwk_audio">
+        <figcaption class="figure-caption">AUDIO架构图</figcaption>
+    </figure>
+    <p>AAudio可以低延迟的音频通路，有EXCLUSIVE,和MMAP两种模式。</p>
+    <figure class="figure">
+        <img src="img/pcm_data_flow.png" class="figure-img img-fluid rounded" alt="pcm_data_flow">
+        <figcaption class="figure-caption">AAudio数据流</figcaption>
+    </figure>
+    <hr>
+    <h3>CAMERA</h3>
+    <figure class="figure">
+        <img src="img/ape_fwk_camera2.png" class="figure-img img-fluid rounded" alt="ape_fwk_camera2">
+        <figcaption class="figure-caption">CAMERA架构图</figcaption>
+    </figure>
+    <hr>
+    <h3>CONNECTIVITY</h3>
+    <figure class="figure">
+        <img src="img/wifi_arch.png" class="figure-img img-fluid rounded" alt="wifi_arch">
+        <figcaption class="figure-caption">WIFI架构图</figcaption>
+    </figure>
+    <hr>
+    <h3>INTERACTION</h3>
+    <figure class="figure">
+        <img src="img/ape_fwk_sensors.png" class="figure-img img-fluid rounded" alt="ape_fwk_sensors">
+        <figcaption class="figure-caption">Sensors架构图</figcaption>
+    </figure>
+    <hr>
+
+
+</div>
+
+
+
+<!-- Optional JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+</html>

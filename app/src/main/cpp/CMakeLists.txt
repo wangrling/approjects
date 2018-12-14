@@ -8,6 +8,15 @@ add_library( flacJNI
              libFLAC/flac_parser.cc
             )
 
+find_library(loglib log)
+
+add_library( opengles
+            SHARED
+            opengles/FirstNative.cpp
+            opengles/SimpleTriangle.cpp
+        )
+target_link_libraries(opengles ${loglib} GLESv2)
+
 # Creates the project's shared lib: libnative-lib.so.
 # The lib is loaded by this project's Java code in MainActivity.java:
 #     System.loadLibrary("native-lib");

@@ -60,6 +60,3 @@ Java_com_android_approjects_exoplayer_extension_flac_FlacDecoderJni_flacInit(JNI
 
     // TODO
 }
-
-
-

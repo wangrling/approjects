@@ -591,6 +591,7 @@ public class CameraToMpegTest {
          * Makes our EGL context and surface current.
          */
         public void makeCurrent() {
+            // 理解为将mEGLSurface作为缓冲。
             EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
             checkEglError("eglMakeCurrent");
         }

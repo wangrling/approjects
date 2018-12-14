@@ -20,6 +20,8 @@ import com.android.approjects.exoplayer.SampleChooserActivity;
 import com.android.approjects.grafika.GrafikaActivity;
 import com.android.approjects.musicfx.MusicFXActivity;
 import com.android.approjects.musicfx.RandomMusicActivity;
+import com.android.approjects.opengles.OpenGLESActivity;
+import com.android.approjects.opengles.firstnative.FirstNativeActivity;
 import com.android.approjects.permissions.PermissionsActivity;
 import com.android.approjects.soundrecorder.SoundRecorder;
 import com.android.approjects.universalmusicplayer.ui.MusicPlayerActivity;
@@ -44,6 +46,8 @@ public class AppInfoFragment extends Fragment {
 
         // 重点关注
         // https://developers.google.com/ar/
+
+        mAppInfos.add(new Pair<>("OpenGLES", R.drawable.opengles));
 
         // 使用AIDL实现的播放器。
         mAppInfos.add(new Pair<>("AIDLMusicPlayer", R.drawable.aidlmusic));
@@ -80,6 +84,11 @@ public class AppInfoFragment extends Fragment {
     }
 
     private Class<?>[] mAppMainClasses = {
+
+
+
+            OpenGLESActivity.class,
+            null,null,null,
             CameraRawActivity.class,
             DeskClock.class,
             SoundRecorder.class,

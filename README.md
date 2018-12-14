@@ -1,4 +1,8 @@
 <html>
+    <h3>GraphicsArchitecture</h3>
+    <p>Surface, Surface Holder, EGLSurface, SurfaceView, GLSurfaceView,
+    SurfaceTexture, TextureView, SurfaceFlinger, and Vulkan.</p>
+
     <h3>SoundRecorder</h3>
     <p>录音机应用，继承MediaRecorder类，底层系统已经封装好AMR, 3GPP, AAC, WAV格式。</p>
     <hr>

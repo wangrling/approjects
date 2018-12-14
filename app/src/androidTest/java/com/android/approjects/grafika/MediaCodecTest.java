@@ -510,7 +510,7 @@ public class MediaCodecTest {
             CountDownLatch codecFlushed,
             AtomicInteger numBuffers) {
         InputSurface inputSurface = null;
-        
+
             inputSurface = initCodecAndSurface(mime, encoder);
 
     }
