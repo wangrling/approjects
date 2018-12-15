@@ -38,6 +38,10 @@
         <activity android:name=".opengles.OpenGLESActivity" />
         <activity android:name=".opengles.firstnative.FirstNativeActivity" />
         <activity android:name=".opengles.simpletriangle.SimpleTriangleActivity" />
+        <activity android:name=".opengles.simplecube.SimpleCubeActivity" />
+        <activity android:name=".opengles.TextureCubeActivity" />
+        <activity android:name=".opengles.LightingActivity" />
+        <activity android:name=".opengles.NormalMappingActivity" />
 
         <activity android:name=".cameraraw.CameraRawActivity" />
 

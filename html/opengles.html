@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<div class="fluid-container">
+<div class="container-fluid">
     <p>A programmable pipeline allows the developer to
         provide custom code that is run on the GPU at various stages of the pipeline. </p>
     <figure class="figure">
@@ -23,7 +23,29 @@
 
     <p> The fragment shader is run (you guessed it!) once per fragment issued by the rasterizer.</p>
 
+    <div>正射投影</div>
+    <figure class="figure">
+        <img src="img/orthographic_frustum.png" class="figure-img img-fluid rounded" alt="orthographic_frustum">
+        <figcaption class="figure-caption">Orthographic Projection</figcaption>
+    </figure>
+    <div>透视投影</div>
+    <figure class="figure">
+        <img src="img/perspective_frustum.png" class="figure-img img-fluid rounded" alt="perspective_frustum">
+        <figcaption class="figure-caption">Perspective Projection</figcaption>
+    </figure>
 
+    <p>三种光线：漫反射光照(Diffuse Light), 环境光照(Ambient Light), 镜面光照(Specular Light)</p>
+    <figure class="figure">
+        <img src="img/diffuse_light.png" class="figure-img img-fluid rounded" alt="diffuse_light">
+        <figcaption class="figure-caption">Diffuse Light</figcaption>
+    </figure>
+    <figure class="figure">
+        <img src="img/basic_lighting_specular_theory.png" class="figure-img img-fluid rounded"
+             alt="basic_lighting_specular_theory">
+        <figcaption class="figure-caption">Specular Light</figcaption>
+    </figure>
+
+    <p>Normal Mapping用于显示物体表面凹凸不平的效果，修改纹理表面的法向量。</p>
 </div>
 
 <!-- Optional JavaScript -->

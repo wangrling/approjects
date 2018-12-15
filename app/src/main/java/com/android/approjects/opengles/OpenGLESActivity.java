@@ -33,29 +33,37 @@ public class OpenGLESActivity extends ListActivity {
                     "A quick introduction to the programmable graphics pipeline introduced in OpenGL ES 2.0.",
                     "simpletriangle.SimpleTriangleActivity"
             },
+            /*
             {
                 "Graphics Setup",
-                    "Setting up your application ready for graphics.",""
+                    "Setting up your application ready for graphics.",
+                    "graphicssetup.GraphicsSetupActivity"
             },
+            */
             {
                 "Simple Triangle",
-                    "How to create your first triangle.",""
+                    "How to create your first triangle.",
+                    "simpletriangle.SimpleTriangleActivity"
             },
             {
                 "Simple Cube",
-                    "Introduction in transformations and movement in OpenGL ES 2.0.",""
+                    "Introduction in transformations and movement in OpenGL ES 2.0.",
+                    "simplecube.SimpleCubeActivity"
             },
             {
                 "Texture Cube",
-                "How to start texturing your objects to make them look realistic.",""
+                "How to start texturing your objects to make them look realistic.",
+                    "TextureCubeActivity"
             },
             {
                 "Lighting",
-                    "Basic lighting using OpenGL ES 2.0.",""
+                    "Basic lighting using OpenGL ES 2.0.",
+                    "LightingActivity"
             },
             {
                 "Normal Mapping",
-                    "Basic Normal Mapping tutorial that uses Normal Maps.",""
+                    "Basic Normal Mapping tutorial that uses Normal Maps.",
+                    "NormalMappingActivity"
             }
     };
 

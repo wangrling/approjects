@@ -12,9 +12,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define LOG_TAG "libNative"
+#define LOG_TAG "libOpenGL"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
+extern GLuint loadShader(GLenum shaderType, const char* shaderSource);
+extern GLuint createProgram(const char* vertexSource, const char* fragmentSource);
 
 /** Vertex source */
 static const char glVertexShader[] =
@@ -29,7 +32,7 @@ static const char glFragmentShader[] =
         "void main() {                                  \n"
         "   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);    \n"
         "}                                              \n";
-
+/*
 GLuint loadShader(GLenum shaderType, const char* shaderSource)
 {
     GLuint shader = glCreateShader(shaderType);
@@ -115,6 +118,8 @@ GLuint createProgram(const char* vertexSource, const char* fragmentSource) {
 
     return program;
 }
+ */
+
 
 GLuint simpleTriangleProgram;
 GLuint vPosition;
@@ -153,6 +158,7 @@ const GLfloat triangleVertices[] = {
 };
 
 void renderFrame() {
+
     glClearColor(1.0f, 0.5f, 1.0f, 1.0f);
     glClear (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glUseProgram(simpleTriangleProgram);
@@ -161,6 +167,7 @@ void renderFrame() {
     glEnableVertexAttribArray(vPosition);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
 }
 
 extern "C"
@@ -171,4 +178,3 @@ Java_com_android_approjects_opengles_simpletriangle_SimpleTriangleLibrary_step(J
     // TODO
     renderFrame();
 }
-

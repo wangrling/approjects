@@ -2,7 +2,6 @@
     <h3>GraphicsArchitecture</h3>
     <p>Surface, Surface Holder, EGLSurface, SurfaceView, GLSurfaceView,
     SurfaceTexture, TextureView, SurfaceFlinger, and Vulkan.</p>
-
     <h3>SoundRecorder</h3>
     <p>录音机应用，继承MediaRecorder类，底层系统已经封装好AMR, 3GPP, AAC, WAV格式。</p>
     <hr>
@@ -36,4 +35,5 @@
     目前是按home键后台播放，如果按back键则是退出播放，用户按back键的意图不好推测。</p>
     <p>重新修改架构，将播放控制和音乐列表放在一个fragment，将MediaEffect放在另外一个fragment。
     点击ActionBar上面的按钮切换到MediaEffect界面调整参数。</p>
+    <p>增加音乐列表，传递AudioSession参数。</p>
 </html>

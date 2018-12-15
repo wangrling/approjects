@@ -10,10 +10,14 @@ add_library( flacJNI
 
 find_library(loglib log)
 
+include_directories(opengles)
 add_library( opengles
             SHARED
+            opengles/OpenGLLibrary.cpp
             opengles/FirstNative.cpp
             opengles/SimpleTriangle.cpp
+            opengles/Matrix.cpp
+            opengles/Texture.cpp
         )
 target_link_libraries(opengles ${loglib} GLESv2)
 
