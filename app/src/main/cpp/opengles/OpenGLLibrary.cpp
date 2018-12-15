@@ -16,6 +16,13 @@
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_FirstNativeActivity_init(JNIEnv *env, jclass type) {
+
+    // TODO
+    LOGI("Hello From the Native Side!!");
+}
 
 GLuint loadShader(GLenum shaderType, const char* shaderSource)
 {
@@ -124,6 +131,81 @@ Java_com_android_approjects_opengles_graphicssetup_OpenGLLibrary_step(JNIEnv *en
     sleep(5);
     LOGI("New Frame Ready to be Drawn!!!!");
 }
+
+namespace SimpleTriangle {
+    /** Vertex source */
+    static const char glVertexShader[] =
+            "attribute vec4 vPosition;      \n"
+            "void main() {                  \n"
+            "   gl_Position = vPosition;    \n"
+            "}                              \n";
+
+    /** Fragment source */
+    static const char glFragmentShader[] =
+            "precision mediump float;                       \n"
+            "void main() {                                  \n"
+            "   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);    \n"
+            "}                                              \n";
+
+    GLuint simpleTriangleProgram;
+    GLuint vPosition;
+
+    bool setupGraphics(int w, int h) {
+        simpleTriangleProgram = createProgram(glVertexShader, glFragmentShader);
+
+        if (!simpleTriangleProgram)
+        {
+            LOGE ("Could not create program");
+            return false;
+        }
+
+        vPosition = glGetAttribLocation(simpleTriangleProgram, "vPosition");
+
+        glViewport(0, 0, w, h);
+
+        return true;
+    }
+
+    const GLfloat triangleVertices[] = {
+            0.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, -1.0f
+    };
+
+    void renderFrame() {
+
+        glClearColor(1.0f, 0.5f, 1.0f, 1.0f);
+        glClear (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glUseProgram(simpleTriangleProgram);
+
+        glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, triangleVertices);
+        glEnableVertexAttribArray(vPosition);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_SimpleTriangleActivity_init(JNIEnv *env,
+                                                                                jclass type,
+                                                                                jint width,
+                                                                                jint height) {
+
+    // TODO
+    SimpleTriangle::setupGraphics(width, height);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_SimpleTriangleActivity_step(JNIEnv *env,
+                                                                                jclass type) {
+
+    // TODO
+    SimpleTriangle::renderFrame();
+}
+
 
 namespace SimpleCube {
     // 作用于每个点
@@ -265,22 +347,20 @@ namespace SimpleCube {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_android_approjects_opengles_simplecube_GraphicsView_init(JNIEnv *env, jclass type,
-                                                                  jint width, jint height) {
+Java_com_android_approjects_opengles_SimpleCubeActivity_init(JNIEnv *env, jclass type, jint width,
+                                                             jint height) {
 
     // TODO
     SimpleCube::setupGraphics(width, height);
-
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_android_approjects_opengles_simplecube_GraphicsView_step(JNIEnv *env, jclass type) {
+Java_com_android_approjects_opengles_SimpleCubeActivity_step(JNIEnv *env, jclass type) {
 
     // TODO
     SimpleCube::renderFrame();
 }
-
 
 namespace TextureCube {
     static const char glVertexShader[] = {
@@ -1023,3 +1103,383 @@ Java_com_android_approjects_opengles_NormalMappingActivity_step(JNIEnv *env, jcl
     NormalMapping::renderFrame();
 }
 
+namespace VBO {
+    static const char  glVertexShader[] =
+            "attribute vec4 vertexPosition;\n"
+            "attribute vec3 vertexColour;\n"
+            "varying vec3 fragColour;\n"
+            "uniform mat4 projection;\n"
+            "uniform mat4 modelView;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_Position = projection * modelView * vertexPosition;\n"
+            "    fragColour = vertexColour;\n"
+            "}\n";
+
+    static const char  glFragmentShader[] =
+            "precision mediump float;\n"
+            "varying vec3 fragColour;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_FragColor = vec4(fragColour, 1.0);\n"
+            "}\n";
+
+    static GLuint glProgram;
+    static GLuint vertexLocation;
+    static GLuint vertexColourLocation;
+    static GLuint projectionLocation;
+    static GLuint modelViewLocation;
+/* [vboIDDefinition] */
+    static GLuint vboBufferIds[2];
+/* [vboIDDefinition] */
+
+    static float projectionMatrix[16];
+    static float modelViewMatrix[16];
+    static float angle = 0;
+
+    /* [vboVertexData] */
+    static GLfloat cubeVertices[] = { -1.0f,  1.0f, -1.0f,  /* Back Face First Vertex Position */
+                                      1.0f, 0.0f, 0.0f,           /* Back Face First Vertex Colour */
+                                      1.0f,  1.0f, -1.0f,         /* Back Face Second Vertex Position */
+                                      1.0f, 0.0f, 0.0f,           /* Back Face Second Vertex Colour */
+                                      -1.0f, -1.0f, -1.0f,        /* Back Face Third Vertex Position */
+                                      1.0f, 0.0f, 0.0f,           /* Back Face Third Vertex Colour */
+                                      1.0f, -1.0f, -1.0f,         /* Back Face Fourth Vertex Position */
+                                      1.0f, 0.0f, 0.0f,           /* Back Face Fourth Vertex Colour */
+                                      -1.0f,  1.0f,  1.0f,        /* Front. */
+                                      0.0f, 1.0f, 0.0f,
+                                      1.0f,  1.0f,  1.0f,
+                                      0.0f, 1.0f, 0.0f,
+                                      -1.0f, -1.0f,  1.0f,
+                                      0.0f, 1.0f, 0.0f,
+                                      1.0f, -1.0f,  1.0f,
+                                      0.0f, 1.0f, 0.0f,
+                                      -1.0f,  1.0f, -1.0f,        /* Left. */
+                                      0.0f, 0.0f, 1.0f,
+                                      -1.0f, -1.0f, -1.0f,
+                                      0.0f, 0.0f, 1.0f,
+                                      -1.0f, -1.0f,  1.0f,
+                                      0.0f, 0.0f, 1.0f,
+                                      -1.0f,  1.0f,  1.0f,
+                                      0.0f, 0.0f, 1.0f,
+                                      1.0f,  1.0f, -1.0f,         /* Right. */
+                                      1.0f, 1.0f, 0.0f,
+                                      1.0f, -1.0f, -1.0f,
+                                      1.0f, 1.0f, 0.0f,
+                                      1.0f, -1.0f,  1.0f,
+                                      1.0f, 1.0f, 0.0f,
+                                      1.0f,  1.0f,  1.0f,
+                                      1.0f, 1.0f, 0.0f,
+                                      -1.0f, -1.0f, -1.0f,         /* Top. */
+                                      0.0f, 1.0f, 1.0f,
+                                      -1.0f, -1.0f,  1.0f,
+                                      0.0f, 1.0f, 1.0f,
+                                      1.0f, -1.0f,  1.0f,
+                                      0.0f, 1.0f, 1.0f,
+                                      1.0f, -1.0f, -1.0f,
+                                      0.0f, 1.0f, 1.0f,
+                                      -1.0f,  1.0f, -1.0f,         /* Bottom. */
+                                      1.0f, 0.0f, 1.0f,
+                                      -1.0f,  1.0f,  1.0f,
+                                      1.0f, 0.0f, 1.0f,
+                                      1.0f,  1.0f,  1.0f,
+                                      1.0f, 0.0f, 1.0f,
+                                      1.0f,  1.0f, -1.0f,
+                                      1.0f, 0.0f, 1.0f,
+    };
+    /* [vboVertexData] */
+    static GLushort  strideLength = 6 * sizeof(GLfloat);
+    static GLushort vertexColourOffset = 3 * sizeof(GLfloat);
+    static GLushort vertexBufferSize = 48 * 3 * sizeof(GLfloat);
+
+    static GLushort elementBufferSize = 36 * sizeof(GLushort);
+
+    static GLushort indices[] = {0, 2, 3, 0, 1, 3, 4, 6, 7, 4, 5, 7, 8, 9, 10, 11, 8, 10, 12, 13, 14, 15, 12, 14, 16, 17, 18, 16, 19, 18, 20, 21, 22, 20, 23, 22};
+
+    bool setupGraphics(jint width, jint height) {
+        glProgram = createProgram(glVertexShader, glFragmentShader);
+
+        if (glProgram == 0)
+        {
+            LOGE ("Could not create program");
+            return false;
+        }
+        /* [vboCreation] */
+        glGenBuffers(2, vboBufferIds);
+        glBindBuffer(GL_ARRAY_BUFFER, vboBufferIds[0]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboBufferIds[1]);
+        /* [vboCreation] */
+
+        /* [vboAllocateSpace] */
+        glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, cubeVertices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, indices, GL_STATIC_DRAW);
+        /* [vboAllocateSpace] */
+
+        vertexLocation = glGetAttribLocation(glProgram, "vertexPosition");
+        vertexColourLocation = glGetAttribLocation(glProgram, "vertexColour");
+        projectionLocation = glGetUniformLocation(glProgram, "projection");
+        modelViewLocation = glGetUniformLocation(glProgram, "modelView");
+
+        matrixPerspective(projectionMatrix, 45, (float)width / (float)height, 0.1f, 100);
+        glEnable(GL_DEPTH_TEST);
+
+        glViewport(0, 0, width, height);
+
+        return true;
+    }
+
+    void renderFrame() {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+        matrixIdentityFunction(modelViewMatrix);
+
+        matrixRotateX(modelViewMatrix, angle);
+        matrixRotateY(modelViewMatrix, angle);
+
+        matrixTranslate(modelViewMatrix, 0.0f, 0.0f, -10.0f);
+
+        glUseProgram(glProgram);
+
+        /* [vboVertexAttribPointer] */
+        glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, strideLength, 0);
+        glEnableVertexAttribArray(vertexLocation);
+        glVertexAttribPointer(vertexColourLocation, 3, GL_FLOAT, GL_FALSE, strideLength, (const void *) vertexColourOffset);
+        glEnableVertexAttribArray(vertexColourLocation);
+        /* [vboVertexAttribPointer] */
+
+        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, projectionMatrix);
+        glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, modelViewMatrix);
+
+        /* [vboDrawElements] */
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+        /* [vboDrawElements] */
+
+        angle += 1;
+        if (angle > 360)
+        {
+            angle -= 360;
+        }
+    }
+};
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_VBOActivity_init(JNIEnv *env, jclass type, jint width,
+                                                      jint height) {
+
+    // TODO
+    VBO::setupGraphics(width, height);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_VBOActivity_step(JNIEnv *env, jclass type) {
+
+    // TODO
+    VBO::renderFrame();
+}
+
+namespace FileLoading {
+    static int PRIVATE_FILE_SIZE = 82;
+    static int PUBLIC_FILE_SIZE = 105;
+    static int CACHE_FILE_SIZE = 146;
+
+    void readFile(const char *fileName, int size) {
+        FILE *file = fopen(fileName, "r");
+        char *fileContent = (char *) malloc(sizeof(char) * size);
+
+        // 没有外部读权限没法读取文件。
+        if (file == NULL) {
+            LOGE("Failure to load the file");
+            return;
+        } else {
+            fread(fileContent, size, 1, file);
+            LOGI("%s",fileContent);
+            free(fileContent);
+            fclose(file);
+        }
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_FileLoadingActivity_init(JNIEnv *env, jclass type,
+                                                              jstring privateFile_,
+                                                              jstring publicFile_,
+                                                              jstring cacheFile_) {
+    const char *privateFile = env->GetStringUTFChars(privateFile_, 0);
+    const char *publicFile = env->GetStringUTFChars(publicFile_, 0);
+    const char *cacheFile = env->GetStringUTFChars(cacheFile_, 0);
+
+    // TODO
+    FileLoading::readFile(privateFile, FileLoading::PRIVATE_FILE_SIZE);
+    FileLoading::readFile(publicFile, FileLoading::PUBLIC_FILE_SIZE);
+    FileLoading::readFile(cacheFile, FileLoading::CACHE_FILE_SIZE);
+
+    env->ReleaseStringUTFChars(privateFile_, privateFile);
+    env->ReleaseStringUTFChars(publicFile_, publicFile);
+    env->ReleaseStringUTFChars(cacheFile_, cacheFile);
+}
+
+namespace Mipmap {
+    static const char glVertexShader[] =
+            "attribute vec4 vertexPosition;\n"
+            "attribute vec2 vertexTextureCord;\n"
+            "varying vec2 textureCord;\n"
+            "uniform mat4 projection;\n"
+            "uniform mat4 modelView;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_Position = projection * modelView * vertexPosition;\n"
+            "    textureCord = vertexTextureCord;\n"
+            "}\n";
+
+    static const char glFragmentShader[] =
+            "precision mediump float;\n"
+            "uniform sampler2D texture;\n"
+            "varying vec2 textureCord;\n"
+            "void main()\n"
+            "{\n"
+            "    gl_FragColor = texture2D(texture, textureCord);\n"
+            "}\n";
+
+    GLuint glProgram;
+    GLuint vertexLocation;
+    GLuint samplerLocation;
+    GLuint projectionLocation;
+    GLuint modelViewLocation;
+    GLuint textureCordLocation;
+    GLuint textureIds[2];
+
+    float projectionMatrix[16];
+    float modelViewMatrix[16];
+/* [newGlobals] */
+    float distance = 1;
+    float velocity = 0.1;
+    GLuint textureModeToggle = 0;
+    /* [newGlobals] */
+
+    bool setupGraphics(int width, int height) {
+        glProgram = createProgram(glVertexShader, glFragmentShader);
+
+        if (!glProgram)
+        {
+            LOGE ("Could not create program");
+            return false;
+        }
+
+        vertexLocation = glGetAttribLocation(glProgram, "vertexPosition");
+        textureCordLocation = glGetAttribLocation(glProgram, "vertexTextureCord");
+        projectionLocation = glGetUniformLocation(glProgram, "projection");
+        modelViewLocation = glGetUniformLocation(glProgram, "modelView");
+        samplerLocation = glGetUniformLocation(glProgram, "texture");
+
+        /* Setup the perspective. */
+        /* [matrixPerspective] */
+        matrixPerspective(projectionMatrix, 45, (float)width / (float)height, 0.1f, 170);
+        /* [matrixPerspective] */
+        glEnable(GL_DEPTH_TEST);
+
+        glViewport(0, 0, width, height);
+
+        /* Code has been pulled out of the texture function as each of load texture calls for both compressed
+         * and uncompressed textures need to use the same textureId
+         */
+        /* [mipmapRegularTextures] */
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        /* Generate a texture object. */
+        glGenTextures(2, textureIds);
+        /* Activate a texture. */
+        glActiveTexture(GL_TEXTURE0);
+        /* Bind the texture object. */
+        glBindTexture(GL_TEXTURE_2D, textureIds[0]);
+
+
+        /* Load the Texture. */
+        loadTexture("/data/user/0/com.android.approjects/files/level6.raw", 6, 8, 8);
+        loadTexture("/data/user/0/com.android.approjects/files/level7.raw", 7, 4, 4);
+        loadTexture("/data/user/0/com.android.approjects/files/level8.raw", 8, 2, 2);
+        loadTexture("/data/user/0/com.android.approjects/files/level9.raw", 9, 1, 1);
+        /* [mipmapRegularTextures] */
+
+        /* [mipmapCompressedTextures] */
+        /* Activate a texture. */
+        glActiveTexture(GL_TEXTURE1);
+
+        /* Bind the texture object. */
+        glBindTexture(GL_TEXTURE_2D, textureIds[1]);
+
+        loadCompressedTexture("/data/user/0/com.android.approjects/files/level6.pkm", 6);
+        loadCompressedTexture("/data/user/0/com.android.approjects/files/level7.pkm", 7);
+        loadCompressedTexture("/data/user/0/com.android.approjects/files/level8.pkm", 8);
+        loadCompressedTexture("/data/user/0/com.android.approjects/files/level9.pkm", 9);
+        /* [mipmapCompressedTextures] */
+        return true;
+    }
+
+    /* [vertexIndiceCode] */
+    GLfloat squareVertices[] = { -1.0f,  1.0f,  1.0f,
+                                 1.0f,  1.0f,  1.0f,
+                                 -1.0f, -1.0f,  1.0f,
+                                 1.0f, -1.0f,  1.0f,
+    };
+
+    GLfloat textureCords[] = { 0.0f, 1.0f,
+                               1.0f, 1.0f,
+                               0.0f, 0.0f,
+                               1.0f, 0.0f,
+    };
+
+    GLushort indicies[] = {0, 2, 3, 0, 3, 1};
+    /* [vertexIndiceCode] */
+
+    void renderFrame() {
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+        matrixIdentityFunction(modelViewMatrix);
+
+        /* [matrixTranslate] */
+        matrixTranslate(modelViewMatrix, 0.0f, 0.0f, -distance);
+        /* [matrixTranslate] */
+
+        glUseProgram(glProgram);
+        glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, 0, squareVertices);
+        glEnableVertexAttribArray(vertexLocation);
+
+        glVertexAttribPointer(textureCordLocation, 2, GL_FLOAT, GL_FALSE, 0, textureCords);
+        glEnableVertexAttribArray(textureCordLocation);
+        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE,projectionMatrix);
+        glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, modelViewMatrix);
+
+        /* [rangeOfMovement] */
+        glUniform1i(samplerLocation, textureModeToggle);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indicies);
+
+        distance += velocity;
+        if (distance > 160 || distance < 1)
+        {
+            velocity *= -1;
+            textureModeToggle = !textureModeToggle;
+        }
+        /* [rangeOfMovement] */
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_MipmappingActivity_init(JNIEnv *env, jclass type, jint width,
+                                                             jint height) {
+
+    // TODO
+    Mipmap::setupGraphics(width, height);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_android_approjects_opengles_MipmappingActivity_step(JNIEnv *env, jclass type) {
+
+    // TODO
+    Mipmap::renderFrame();
+}

@@ -14,8 +14,6 @@ include_directories(opengles)
 add_library( opengles
             SHARED
             opengles/OpenGLLibrary.cpp
-            opengles/FirstNative.cpp
-            opengles/SimpleTriangle.cpp
             opengles/Matrix.cpp
             opengles/Texture.cpp
         )

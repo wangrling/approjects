@@ -95,3 +95,70 @@ GLuint loadTexture() {
 
     return textureId;
 }
+
+/* [loadTexture] */
+void loadTexture( const char * texture, unsigned int level, unsigned int width, unsigned int height)
+{
+    GLubyte * theTexture;
+    theTexture = (GLubyte *)malloc(sizeof(GLubyte) * width * height * CHANNELS_PER_PIXEL);
+
+    FILE * theFile = fopen(texture, "r");
+
+    if(theFile == NULL)
+    {
+        LOGE("Failure to load the texture");
+        return;
+    }
+
+    fread(theTexture, width * height * CHANNELS_PER_PIXEL, 1, theFile);
+
+    /* Load the texture. */
+    glTexImage2D(GL_TEXTURE_2D, level, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, theTexture);
+
+    /* Set the filtering mode. */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+    free(theTexture);
+}
+/* [loadTexture] */
+
+/* [loadCompressedTexture] */
+void loadCompressedTexture( const char * texture, unsigned int level)
+{
+    GLushort paddedWidth;
+    GLushort paddedHeight;
+    GLushort width;
+    GLushort height;
+    GLubyte textureHead[16];
+    GLubyte * theTexture;
+
+    FILE * theFile = fopen(texture, "rb");
+
+    if(theFile == NULL)
+    {
+        LOGE("Failure to load the texture");
+        return;
+    }
+
+    fread(textureHead, 16, 1, theFile);
+
+    paddedWidth = (textureHead[8] << 8) | textureHead[9];
+    paddedHeight = (textureHead[10] << 8) | textureHead[11];
+    width = (textureHead[12] << 8) | textureHead[13];
+    height = (textureHead[14] << 8) | textureHead[15];
+
+    theTexture = (GLubyte *)malloc(sizeof(GLubyte) * ((paddedWidth * paddedHeight) >> 1));
+    fread(theTexture, (paddedWidth * paddedHeight) >> 1, 1, theFile);
+
+    /* Load the texture. */
+    glCompressedTexImage2D(GL_TEXTURE_2D, level, GL_ETC1_RGB8_OES, width, height, 0, (paddedWidth * paddedHeight) >> 1, theTexture);
+
+    /* Set the filtering mode. */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+    free(theTexture);
+    fclose(theFile);
+}
+/* [loadCompressedTexture] */

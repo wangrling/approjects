@@ -98,21 +98,4 @@ public class GraphicsView extends GLSurfaceView {
             return defaultValue;
         }
     }
-
-    private static class Renderer implements GLSurfaceView.Renderer {
-        @Override
-        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-
-        }
-
-        @Override
-        public void onSurfaceChanged(GL10 gl, int width, int height) {
-            OpenGLLibrary.init(width, height);
-        }
-
-        @Override
-        public void onDrawFrame(GL10 gl) {
-            OpenGLLibrary.step();
-        }
-    }
 }

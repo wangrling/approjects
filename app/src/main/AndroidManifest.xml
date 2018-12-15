@@ -36,12 +36,15 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".opengles.OpenGLESActivity" />
-        <activity android:name=".opengles.firstnative.FirstNativeActivity" />
-        <activity android:name=".opengles.simpletriangle.SimpleTriangleActivity" />
-        <activity android:name=".opengles.simplecube.SimpleCubeActivity" />
+        <activity android:name=".opengles.FirstNativeActivity" />
+        <activity android:name=".opengles.SimpleTriangleActivity" />
+        <activity android:name=".opengles.SimpleCubeActivity" />
         <activity android:name=".opengles.TextureCubeActivity" />
         <activity android:name=".opengles.LightingActivity" />
         <activity android:name=".opengles.NormalMappingActivity" />
+        <activity android:name=".opengles.VBOActivity"/>
+        <activity android:name=".opengles.FileLoadingActivity" />
+        <activity android:name=".opengles.MipmappingActivity" />
 
         <activity android:name=".cameraraw.CameraRawActivity" />
 

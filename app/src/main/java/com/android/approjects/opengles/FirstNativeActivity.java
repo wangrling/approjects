@@ -1,4 +1,4 @@
-package com.android.approjects.opengles.firstnative;
+package com.android.approjects.opengles;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ public class FirstNativeActivity extends Activity {
 
         Log.d(LOGTAG, "On Create Method Calling Native Library");
 
-        FirstNativeLibrary.init();
+        init();
     }
 
     @Override
@@ -28,4 +28,6 @@ public class FirstNativeActivity extends Activity {
     protected void onResume() {
         super.onResume();
     }
+
+    public static native void init();
 }

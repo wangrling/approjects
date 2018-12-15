@@ -19,4 +19,20 @@
 */
 GLuint loadTexture();
 
+/**
+ * \brief Loads a desired texture into memory at an appropriate mipmap level.
+ * \param texture The name of the texture file to be loaded from the system.
+ * \param level The mipmap level that the texture should be loaded into.
+ * \param width The width of the texture to be loaded
+ * \param height The height of the texture to be loaded.
+ */
+void loadTexture( const char * texture, unsigned int level, unsigned int width, unsigned int height);
+
+/**
+ * \brief Loads a compressed texture into memory at an appropriate mipmap level.
+ * \param texture The name of the texture file to be loeaded from the system.
+ * \param level The mipmap level that the texture should be loaded into.
+ */
+void loadCompressedTexture( const char * texture, unsigned int level);
+
 #endif //APPROJECTS_TEXTURE_H

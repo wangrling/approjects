@@ -1,0 +1,3 @@
+A private location that can only be accessed by your application.
+A public location that can be shared by different applications.
+A temporary location that should not be used for permanent storage.
