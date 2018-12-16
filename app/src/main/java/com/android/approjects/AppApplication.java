@@ -1,8 +1,12 @@
 package com.android.approjects;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.android.approjects.exoplayer.DownloadTracker;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -27,11 +31,21 @@ import androidx.core.app.ActivityCompat;
 
 public class AppApplication extends Application {
 
+    public static final String TAG = "AppInfo";
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         userAgent = Util.getUserAgent(this, "ExoPlayer");
+
+        // 检查手机的OpenGL ES版本
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
+        Log.d(TAG, "reqGlEsVersion: " + info.reqGlEsVersion);
+        // com.android.approjects D/AppInfo: reqGlEsVersion: 196608
+        // 说明是3.0的版本
+
     }
 
     /**

@@ -6,7 +6,6 @@
 #define APPROJECTS_PROJECTEDLIGHTS_H
 
 #include "VectorTypes.h"
-#include "Matrix.h"
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 

@@ -23,6 +23,7 @@
         <figcaption class="figure-caption">底层数据流</figcaption>
     </figure>
 
+
     <p><code>android.graphics.Canvas</code> is a 2D graphics API and operations draw all the stock
     and custom <code>android.view.View</code>s in Android.</p>
     <p>In addition to Canvas, the other main way that developers render graphics is by using
@@ -40,6 +41,14 @@
         Later, the consumer acquires the buffer (acquireBuffer()) and makes use of the buffer
         contents. When the consumer is done, it returns the buffer to the queue (releaseBuffer()).</p>
     <hr>
+    <p>详细的介绍在CameraRawActivity.java的注释中。</p>
+    <figure class="figure">
+        <img src="img/continuous_capture_activity.png" class="figure-img img-fluid rounded"
+             alt="continuous_capture_activity">
+        <figcaption class="figure-caption">录制视频并显示原理图</figcaption>
+    </figure>
+
+
     <h3>MEDIA</h3>
     <figure class="figure">
         <img src="img/ape_fwk_media.png" class="figure-img img-fluid rounded" alt="ape_fwk_media">
