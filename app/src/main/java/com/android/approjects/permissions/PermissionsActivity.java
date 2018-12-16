@@ -36,6 +36,8 @@ public class PermissionsActivity extends Activity implements
      */
     private static final int REQUEST_CONTACTS = 1;
 
+    private static final int REQUEST_STORAGE = 2;
+
     /**
      * Root of the layout of this Activity.
      */
@@ -46,8 +48,49 @@ public class PermissionsActivity extends Activity implements
      */
     private static String[] PERMISSIONS_CONTACT = {Manifest.permission.READ_CONTACTS,
             Manifest.permission.WRITE_CONTACTS};
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
+    // 存储相关权限申请。
+    public void showStorage(View view) {
+        Log.i(TAG, "Show storage button pressed. Checking permission.");
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermissions();
+        } else {
+            Log.i(TAG,
+                    "Storage permissions have already been granted.");
+        }
+    }
+
+    private void requestStoragePermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Log.i(TAG, "Displaying storage permission rationale to provide additional context.");
+
+            // Display a SnackBar with an explanation and a button to trigger the request.
+            Snackbar.make(mLayout, R.string.permission_storage_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat
+                                    .requestPermissions(PermissionsActivity.this, PERMISSIONS_CONTACT,
+                                            REQUEST_CONTACTS);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_STORAGE);
+        }
+    }
+
+    // 相机相关权限申请。
     /**
      * Called when the 'Camera' button is clicked.
      * Callback is defined in resource layout definition.
@@ -115,7 +158,7 @@ public class PermissionsActivity extends Activity implements
     }
 
 
-
+    // 联系人相关权限申请。
     /**
      * Called when the 'Contacts' button is clicked.
      * Callback is defined in resource layout definition.

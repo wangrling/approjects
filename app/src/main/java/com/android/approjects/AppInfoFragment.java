@@ -66,7 +66,7 @@ public class AppInfoFragment extends Fragment {
         mAppInfos.add(new Pair<>("SoundRecorder", R.drawable.soundrecorder));
 
         // 权限申请
-        mAppInfos.add(new Pair<>("RuntimePermissions", R.drawable.permissions));
+        mAppInfos.add(new Pair<>("Permissions", R.drawable.permissions));
 
         // 编解码
         mAppInfos.add(new Pair<>("Grafika", R.drawable.mediacodec));
@@ -75,7 +75,7 @@ public class AppInfoFragment extends Fragment {
         mAppInfos.add(new Pair<>("ExoPlayer", R.drawable.exoplayer));
 
         // 数据没有办法显示
-        mAppInfos.add(new Pair("UniversalMusicPlayer", R.drawable.ump));
+        mAppInfos.add(new Pair("UMPlayer", R.drawable.ump));
 
         // 具体实现还需要等UniversalMusicPlayer写完。
         mAppInfos.add(new Pair("MusicFX", R.drawable.musicfx));

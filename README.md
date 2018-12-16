@@ -1,4 +1,7 @@
 <html>
+    <h3>Camera2RAW</h3>
+    <p>使用TextureView进行显示。</p>
+    <p>弄清楚拍照的流向，那么多回调不分析没什么用，从打开相机开始往下分析。</p>
     <h3>OpenGLES</h3>
     <p>完成OpenGLES的基础内容，使用shader, light等操作，但是目前来看手机好像不支持3.0的版本。</p>
     <h3>GraphicsArchitecture</h3>

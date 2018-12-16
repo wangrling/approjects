@@ -17,7 +17,7 @@ import static com.android.approjects.opengles.setup.ES2SetupActivity.LOGTAG;
 
 public class FileLoadingActivity extends Activity {
     static {
-        System.loadLibrary("opengles");
+        System.loadLibrary("es2");
     }
 
     @Override

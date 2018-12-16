@@ -4,6 +4,7 @@
     <!-- RuntimePermissions -->
     <string name="permission_camera_rationale">Camera permission is needed to show the camera preview.</string>
     <string name="permission_contacts_rationale">Contacts permissions are needed to demonstrate access.</string>
+    <string name="permission_storage_rationale">Storage permissions are needed to demonstrate access.</string>
 
 
     <!--MusicFX -->
@@ -92,5 +93,7 @@
     <string name="finish_update_info">To finish the update press the button below</string>
     <string name="contacts_string"><![CDATA[Total number of contacts: %1$,d, First contact:%2$s]]></string>
     <string name="contacts_empty">Contacts not loaded.</string>
+    <string name="request_permission">This app needs camera permission.</string>
+    <string name="intro_message">This sample demonstrates how to use the Camera2 API to capture RAW             camera buffers and save them as DNG files.</string>
 
 </resources>
