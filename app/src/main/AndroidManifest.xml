@@ -45,6 +45,7 @@
         <activity android:name=".opengles.VBOActivity"/>
         <activity android:name=".opengles.FileLoadingActivity" />
         <activity android:name=".opengles.MipmappingActivity" />
+        <activity android:name=".opengles.ProjectedLightsActivity" />
 
         <activity android:name=".cameraraw.CameraRawActivity" />
 

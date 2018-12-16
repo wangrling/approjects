@@ -1,19 +1,18 @@
 package com.android.approjects.opengles;
 
-import android.app.Application;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
-import com.android.approjects.opengles.graphicssetup.GraphicsSetupActivity;
-import com.android.approjects.opengles.graphicssetup.GraphicsView;
+import com.android.approjects.opengles.setup.ES2SetupActivity;
+import com.android.approjects.opengles.setup.ES2SetupView;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import androidx.annotation.Nullable;
 
-public class LightingActivity extends GraphicsSetupActivity {
+public class LightingActivity extends ES2SetupActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,7 +22,7 @@ public class LightingActivity extends GraphicsSetupActivity {
         super.onCreate(savedInstanceState);
     }
 
-    private class LightingView extends GraphicsView {
+    private class LightingView extends ES2SetupView {
         public LightingView(Context context) {
             super(context);
 

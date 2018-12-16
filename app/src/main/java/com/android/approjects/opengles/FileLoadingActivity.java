@@ -13,7 +13,7 @@ import java.io.RandomAccessFile;
 
 import androidx.annotation.Nullable;
 
-import static com.android.approjects.opengles.graphicssetup.GraphicsSetupActivity.LOGTAG;
+import static com.android.approjects.opengles.setup.ES2SetupActivity.LOGTAG;
 
 public class FileLoadingActivity extends Activity {
     static {

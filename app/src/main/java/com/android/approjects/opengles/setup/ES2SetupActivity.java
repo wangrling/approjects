@@ -1,4 +1,4 @@
-package com.android.approjects.opengles.graphicssetup;
+package com.android.approjects.opengles.setup;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -11,15 +11,15 @@ import java.io.RandomAccessFile;
 
 import androidx.annotation.Nullable;
 
-public class GraphicsSetupActivity extends Activity {
+public class ES2SetupActivity extends Activity {
 
     static {
-        System.loadLibrary("opengles");
+        System.loadLibrary("es2");
     }
 
     public static String LOGTAG = "OpenGL";
 
-    protected GraphicsView graphicsView;
+    protected ES2SetupView graphicsView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

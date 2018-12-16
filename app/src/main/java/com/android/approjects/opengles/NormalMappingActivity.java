@@ -1,14 +1,13 @@
 package com.android.approjects.opengles;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.android.approjects.opengles.graphicssetup.GraphicsSetupActivity;
-import com.android.approjects.opengles.graphicssetup.GraphicsView;
+import com.android.approjects.opengles.setup.ES2SetupActivity;
+import com.android.approjects.opengles.setup.ES2SetupView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +20,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import androidx.annotation.Nullable;
 
-public class NormalMappingActivity extends GraphicsSetupActivity {
+public class NormalMappingActivity extends ES2SetupActivity {
 
     private static Context applicationContext;
     private static String assetDirectory = null;
@@ -40,7 +39,7 @@ public class NormalMappingActivity extends GraphicsSetupActivity {
     }
 
 
-    private class NormalMappingView extends GraphicsView {
+    private class NormalMappingView extends ES2SetupView {
         public NormalMappingView(Context context) {
             super(context);
 

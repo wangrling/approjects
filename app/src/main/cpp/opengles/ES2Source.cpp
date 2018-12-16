@@ -9,7 +9,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include "Matrix.h"
+#include "SimpleMatrix.h"
 #include "Texture.h"
 
 #define LOG_TAG "OpenGL"
@@ -1399,8 +1399,6 @@ namespace Mipmap {
         /* Load the Texture. */
         loadTexture("/data/user/0/com.android.approjects/files/level6.raw", 6, 8, 8);
         loadTexture("/data/user/0/com.android.approjects/files/level7.raw", 7, 4, 4);
-        loadTexture("/data/user/0/com.android.approjects/files/level8.raw", 8, 2, 2);
-        loadTexture("/data/user/0/com.android.approjects/files/level9.raw", 9, 1, 1);
         /* [mipmapRegularTextures] */
 
         /* [mipmapCompressedTextures] */
@@ -1412,8 +1410,6 @@ namespace Mipmap {
 
         loadCompressedTexture("/data/user/0/com.android.approjects/files/level6.pkm", 6);
         loadCompressedTexture("/data/user/0/com.android.approjects/files/level7.pkm", 7);
-        loadCompressedTexture("/data/user/0/com.android.approjects/files/level8.pkm", 8);
-        loadCompressedTexture("/data/user/0/com.android.approjects/files/level9.pkm", 9);
         /* [mipmapCompressedTextures] */
         return true;
     }
@@ -1483,3 +1479,4 @@ Java_com_android_approjects_opengles_MipmappingActivity_step(JNIEnv *env, jclass
     // TODO
     Mipmap::renderFrame();
 }
+

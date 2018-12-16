@@ -38,7 +38,7 @@ public class OpenGLESActivity extends ListActivity {
             {
                 "Graphics Setup",
                     "Setting up your application ready for graphics.",
-                    "graphicssetup.GraphicsSetupActivity"
+                    "graphicssetup.ES2SetupActivity"
             },
             */
             {
@@ -67,7 +67,7 @@ public class OpenGLESActivity extends ListActivity {
                     "NormalMappingActivity"
             },
             {
-                "Asset Loading",
+                "Asset Loading (需要使用assimp库)",
                     "Using the Open Asset Importer to load models into OpenGL ES.",
                     ""
             },
@@ -87,14 +87,14 @@ public class OpenGLESActivity extends ListActivity {
                     "MipmappingActivity"
             },
             {
-                "Projected Lights",
+                "Projected Lights (好像手机不支持3.0版本)",
                     "Projected Lights effect using OpenGL ES 3.0",
                     "ProjectedLightsActivity"
             },
             {
                 "Bloom",
                     "Bloom effect using OpenGL ES 3.0",
-                    ""
+                    "BloomActivity"
             },
             {
                 "Min Max Blending",

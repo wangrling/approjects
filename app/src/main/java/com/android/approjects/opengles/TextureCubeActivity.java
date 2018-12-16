@@ -1,19 +1,17 @@
 package com.android.approjects.opengles;
 
-import android.app.Application;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
-import com.android.approjects.opengles.graphicssetup.GraphicsSetupActivity;
-import com.android.approjects.opengles.graphicssetup.GraphicsView;
+import com.android.approjects.opengles.setup.ES2SetupActivity;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import androidx.annotation.Nullable;
 
-public class TextureCubeActivity extends GraphicsSetupActivity {
+public class TextureCubeActivity extends ES2SetupActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,7 +21,7 @@ public class TextureCubeActivity extends GraphicsSetupActivity {
     }
 
 
-    private class TextureCubeView extends com.android.approjects.opengles.graphicssetup.GraphicsView {
+    private class TextureCubeView extends com.android.approjects.opengles.setup.ES2SetupView {
         public TextureCubeView(Context context) {
             super(context);
 
